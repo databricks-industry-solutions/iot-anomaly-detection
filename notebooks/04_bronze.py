@@ -17,18 +17,17 @@ spark.sql(f"drop table if exists {database}.{target_table}")
 # COMMAND ----------
 
 from pyspark.sql.functions import col, from_json
-from pyspark.sql.types import StructType, StructField, FloatType, IntegerType
+from pyspark.sql.types import StructType, StructField, FloatType, IntegerType, StringType
 
 json_schema = StructType([
-  StructField("r_0", FloatType(), True),
-  StructField("r_1", FloatType(), True),
-  StructField("r_2", FloatType(), True),
-  StructField("r_3", FloatType(), True),
-  StructField("r_4", FloatType(), True),
-  StructField("r_5", FloatType(), True),
-  StructField("code1", IntegerType(), True),
-  StructField("code2", IntegerType(), True),
-  StructField("code3", IntegerType(), True)
+  StructField("timestamp", IntegerType(), True),
+  StructField("device_id", IntegerType(), True),
+  StructField("device_model", StringType(), True),
+  StructField("sensor_1", FloatType(), True),
+  StructField("sensor_2", FloatType(), True),
+  StructField("sensor_3", FloatType(), True),
+  StructField("state", StringType(), True),
+  StructField("anomaly", IntegerType(), True)
 ])
 
 startingOffsets = "earliest"
@@ -39,7 +38,8 @@ bronze_df = spark.readStream \
   .table(f"{database}.{source_table}") \
   .withColumn(
     "parsedJson", from_json(col("parsedValue"), json_schema)
-  ).select("parsedJson.*", "timestamp")
+  ) \
+  .select("parsedJson.*")
 
 display(bronze_df)
 
@@ -51,7 +51,7 @@ bronze_df.writeStream \
   .outputMode("append") \
   .option("checkpointLocation", checkpoint_location_target) \
   .option("mergeSchema", "true") \
-  .trigger(processingTime="30 seconds") \
+  .trigger(processingTime="10 seconds") \
   .table(f"{database}.{target_table}")
 
 # COMMAND ----------

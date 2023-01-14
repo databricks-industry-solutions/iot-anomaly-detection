@@ -2,7 +2,7 @@
 # DBTITLE 1,Ingesting data from Kafka into Raw Layer
 # get secret credentials
 kafka_bootstrap_servers = "b-1.oetrta-kafka.oz8lgl.c3.kafka.us-west-2.amazonaws.com:9094,b-2.oetrta-kafka.oz8lgl.c3.kafka.us-west-2.amazonaws.com:9094"
-topic = "iot_msg_11_2022"
+topic = "iot_msg_01_2023"
 
 # COMMAND ----------
 
@@ -15,7 +15,7 @@ msk_df = (
     .option("subscribe", topic)
     .option("startingOffsets", starting_offsets)
     .load()
-).repartition(32)
+).repartition(24)
 
 # COMMAND ----------
 
@@ -51,7 +51,3 @@ dbutils.fs.rm(table_checkpoint_path, recurse = True)
 # COMMAND ----------
 
 display(spark.readStream.table("rvp_iot_sa.raw"))
-
-# COMMAND ----------
-
-

@@ -18,7 +18,7 @@ spark.sql(f"drop table if exists {database}.{target_table}")
 
 from pyspark.sql import functions as F
 
-startingOffsets = "latest"
+startingOffsets = "earliest"
 
 gold_df = spark.readStream \
   .format("delta") \

@@ -7,6 +7,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("row_delay_seconds", "0.1")
+row_delay_seconds = float(getArgument("row_delay_seconds"))
+
+# COMMAND ----------
+
 !pip install dbldatagen -q
 
 # COMMAND ----------
@@ -23,7 +28,7 @@ states = [ 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA',
 table_name = "iot_stream_example_"
 spark.sql(f"drop table if exists {table_name}")
 
-data_rows = 1000 * 1000 * 10 # 10 Million records
+data_rows = 10000
 df_spec = (
   dg.DataGenerator(
     spark,
@@ -53,7 +58,7 @@ df.write.saveAsTable(table_name)
 # COMMAND ----------
 
 # DBTITLE 1,First Glance into our Generated Data
-sample_df = spark.sql(f"select * from {table_name}")
+sample_df = spark.sql(f"select * from {table_name} where id < 10")
 display(sample_df)
 
 # COMMAND ----------
@@ -68,6 +73,7 @@ import time
 streaming_df = (
   spark.readStream
   .format("delta")
+  .schema(sample_df.schema)
   .table(table_name)
   .select(
     col("id").cast(BinaryType()).alias("key"),
@@ -91,19 +97,19 @@ kafka_checkpoint_path = f"{checkpoint_path}/kafka/{topic}"
 dbutils.fs.rm(kafka_checkpoint_path, recurse = True)
 
 def delay(row):
-    # Wait 1 second for each batch
-    time.sleep(10)
+    # Wait 1 second for each row
+    time.sleep(row_delay_seconds)
     pass
 
 (
   streaming_df
     .writeStream
-    .foreachBatch(delay)
+    .foreach(delay)
     .format("kafka")
     .option("kafka.bootstrap.servers", kafka_bootstrap_servers)
     .option("kafka.security.protocol", "SSL")
     .option("checkpointLocation", kafka_checkpoint_path)
     .option("topic", topic)
 ) \
-  .trigger(processingTime='10 seconds') \
+  .trigger(once = True) \
   .start()

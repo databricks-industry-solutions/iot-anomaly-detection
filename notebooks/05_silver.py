@@ -18,14 +18,14 @@ spark.sql(f"drop table if exists {database}.{target_table}")
 
 from pyspark.sql import functions as F
 
-startingOffsets = "latest"
+startingOffsets = "earliest"
 
 silver_df = spark.readStream \
   .format("delta") \
   .option("startingOffsets", startingOffsets) \
   .table(f"{database}.{source_table}") \
-  .select("r_0", "r_1", "r_2", "timestamp") \
-  .repartition(20)
+  .repartition(20) \
+  .withColumn("timestamp", F.to_date(F.col("timestamp")))
 
 display(silver_df)
 
@@ -38,7 +38,7 @@ silver_df.writeStream \
   .outputMode("append") \
   .option("mergeSchema", "true") \
   .option("checkpointLocation", checkpoint_location_target) \
-  .trigger(processingTime = "30 seconds") \
+  .trigger(processingTime = "10 seconds") \
   .table(f"{database}.{target_table}")
 
 # COMMAND ----------
