@@ -1,11 +1,11 @@
 name: GCP integration test push
 
-on:
- workflow_dispatch:
- push:
-    branches:
-      - main
-      - web-sync
+#on:
+ #workflow_dispatch:
+ #push:
+    #branches:
+      #- main
+      #- web-sync
 
 jobs:
  run-databricks-notebook:
