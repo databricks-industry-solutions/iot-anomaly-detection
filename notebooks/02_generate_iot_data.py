@@ -12,42 +12,49 @@
 # COMMAND ----------
 
 import dbldatagen as dg
-from pyspark.sql.types import IntegerType, FloatType, StringType
+from pyspark.sql.types import IntegerType, FloatType, StringType, LongType
 
-#Clean previous data / checkpoints
-spark.sql("drop table if exists iot_stream_example")
+states = [ 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA',
+           'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME',
+           'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM',
+           'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX',
+           'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY' ]
 
-column_count = 6
+table_name = "iot_stream_example_"
+spark.sql(f"drop table if exists {table_name}")
+
 data_rows = 1000 * 1000 * 10 # 10 Million records
 df_spec = (
   dg.DataGenerator(
     spark,
     name="test_data_set1",
     rows=data_rows,
-    partitions=12
+    partitions=10
   )
   .withIdOutput()
+  .withColumn("device_id", IntegerType(), minValue=1, maxValue=1000)
   .withColumn(
-    "r", FloatType(),
-    expr="floor(rand() * 350) * (86400 + 3600)",
-    numColumns=column_count
+    "device_model",
+    StringType(),
+    values=['mx2000', 'xft-255', 'db-1000', 'db-2000', 'mlr-12.0'],
+    random=True
   )
-  .withColumn("code1", IntegerType(), minValue=100, maxValue=200)
-  .withColumn("code2", IntegerType(), minValue=0, maxValue=10)
-  .withColumn("code3", StringType(), values=['a', 'b', 'c'])
-  .withColumn("code4", StringType(), values=['a', 'b', 'c'], random=True)
-  .withColumn("code5", StringType(), values=['a', 'b', 'c'], random=True, weights=[9, 1, 1])
+  .withColumn("timestamp", LongType(), minValue=1577833200, maxValue=1673714337, random=True)
+  .withColumn("sensor_1", IntegerType(), minValue=-10, maxValue=100, random=True)
+  .withColumn("sensor_2", IntegerType(), minValue=0, maxValue=10, random=True)
+  .withColumn("sensor_3", FloatType(), minValue=0.0001, maxValue=1.0001, random=True)
+  .withColumn("state", StringType(), values=states, random=True)
+  .withColumn("anomaly", StringType(), values=[0, 1], random=True, weights = [8, 2])
 )
                             
 df = df_spec.build()
-df.write.saveAsTable("iot_stream_example")
+df.write.saveAsTable(table_name)
 
 # COMMAND ----------
 
 # DBTITLE 1,First Glance into our Generated Data
-# MAGIC %sql
-# MAGIC 
-# MAGIC SELECT * FROM iot_stream_example LIMIT 5
+sample_df = spark.sql(f"select * from {table_name}")
+display(sample_df)
 
 # COMMAND ----------
 
@@ -61,22 +68,14 @@ import time
 streaming_df = (
   spark.readStream
   .format("delta")
-  .table("iot_stream_example")
+  .table(table_name)
   .select(
     col("id").cast(BinaryType()).alias("key"),
     to_json(
       struct(
-        col('r_0'),
-        col('r_1'),
-        col('r_2'),
-        col('r_3'),
-        col('r_4'),
-        col('r_5'),
-        col('code1'),
-        col('code2'),
-        col('code3')
+        [col(column) for column in sample_df.columns]
       )
-    ).alias("value")
+    ).cast(BinaryType()).alias("value")
   )
 )
 
@@ -86,13 +85,13 @@ import time
 
 # kafka config
 kafka_bootstrap_servers = "b-1.oetrta-kafka.oz8lgl.c3.kafka.us-west-2.amazonaws.com:9094,b-2.oetrta-kafka.oz8lgl.c3.kafka.us-west-2.amazonaws.com:9094"
-topic = "iot_msg_11_2022"
+topic = "iot_msg_01_2023"
 checkpoint_path = "/dbfs/tmp/checkpoints"
-kafka_checkpoint_path = f"{checkpoint_path}/kafka"
+kafka_checkpoint_path = f"{checkpoint_path}/kafka/{topic}"
 dbutils.fs.rm(kafka_checkpoint_path, recurse = True)
 
 def delay(row):
-    # Wait 10 seconds for each row
+    # Wait 1 second for each batch
     time.sleep(10)
     pass
 
@@ -108,7 +107,3 @@ def delay(row):
 ) \
   .trigger(processingTime='10 seconds') \
   .start()
-
-# COMMAND ----------
-
-
