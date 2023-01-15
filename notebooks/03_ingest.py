@@ -15,7 +15,7 @@ msk_df = (
     .option("subscribe", topic)
     .option("startingOffsets", starting_offsets)
     .load()
-).repartition(24)
+).repartition(16)
 
 # COMMAND ----------
 
@@ -44,10 +44,14 @@ dbutils.fs.rm(table_checkpoint_path, recurse = True)
     .format("delta")
     .outputMode("append")
     .option("checkpointLocation", table_checkpoint_path)
-    .trigger(processingTime="10 seconds")
+    .trigger(once = True)
     .toTable("rvp_iot_sa.raw")
 )
 
 # COMMAND ----------
 
 display(spark.readStream.table("rvp_iot_sa.raw"))
+
+# COMMAND ----------
+
+

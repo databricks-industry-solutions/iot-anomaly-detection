@@ -27,7 +27,7 @@ json_schema = StructType([
   StructField("sensor_2", FloatType(), True),
   StructField("sensor_3", FloatType(), True),
   StructField("state", StringType(), True),
-  StructField("anomaly", IntegerType(), True)
+  StructField("anomaly", StringType(), True)
 ])
 
 startingOffsets = "earliest"
@@ -39,19 +39,20 @@ bronze_df = spark.readStream \
   .withColumn(
     "parsedJson", from_json(col("parsedValue"), json_schema)
   ) \
-  .select("parsedJson.*")
+  .select("parsedJson.*") \
+  .dropna() \
+  .withColumn("anomaly", col("anomaly").cast(IntegerType()))
 
 display(bronze_df)
 
 # COMMAND ----------
-
 
 bronze_df.writeStream \
   .format("delta") \
   .outputMode("append") \
   .option("checkpointLocation", checkpoint_location_target) \
   .option("mergeSchema", "true") \
-  .trigger(processingTime="10 seconds") \
+  .trigger(once = True) \
   .table(f"{database}.{target_table}")
 
 # COMMAND ----------

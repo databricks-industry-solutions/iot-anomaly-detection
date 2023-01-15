@@ -24,8 +24,7 @@ silver_df = spark.readStream \
   .format("delta") \
   .option("startingOffsets", startingOffsets) \
   .table(f"{database}.{source_table}") \
-  .repartition(20) \
-  .withColumn("timestamp", F.to_date(F.col("timestamp")))
+  .withColumn("datetime", F.from_unixtime(F.col("timestamp")))
 
 display(silver_df)
 
@@ -38,7 +37,7 @@ silver_df.writeStream \
   .outputMode("append") \
   .option("mergeSchema", "true") \
   .option("checkpointLocation", checkpoint_location_target) \
-  .trigger(processingTime = "10 seconds") \
+  .trigger(once = True) \
   .table(f"{database}.{target_table}")
 
 # COMMAND ----------
