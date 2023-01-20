@@ -26,8 +26,7 @@ json_schema = StructType([
   StructField("sensor_1", FloatType(), True),
   StructField("sensor_2", FloatType(), True),
   StructField("sensor_3", FloatType(), True),
-  StructField("state", StringType(), True),
-  StructField("anomaly", StringType(), True)
+  StructField("state", StringType(), True)
 ])
 
 startingOffsets = "earliest"
@@ -40,8 +39,8 @@ bronze_df = spark.readStream \
     "parsedJson", from_json(col("parsedValue"), json_schema)
   ) \
   .select("parsedJson.*") \
-  .dropna() \
-  .withColumn("anomaly", col("anomaly").cast(IntegerType()))
+  .dropna() #\
+  #.withColumn("anomaly", col("anomaly").cast(IntegerType()))
 
 display(bronze_df)
 
@@ -57,8 +56,41 @@ bronze_df.writeStream \
 
 # COMMAND ----------
 
-display(spark.sql(f"select count(*) from {database}.{target_table}"))
+# DBTITLE 1,Analyzing our Data
+static_df = spark.sql(f"select * from {database}.{target_table}")
+display(static_df)
 
 # COMMAND ----------
 
+from pyspark.sql import functions as F
 
+train_df = static_df.filter(F.from_unixtime("timestamp") < "2021-12-01")
+test_df = static_df.filter(
+  (F.from_unixtime("timestamp") >= "2021-12-01")
+  & (F.from_unixtime("timestamp") < "2022-01-01")
+)
+
+print(f"Training set contains {train_df.count()} rows")
+print(f"Testing set contains {test_df.count()} rows")
+
+# COMMAND ----------
+
+# DBTITLE 1,Labelling our Data
+import pandas as pd
+from pyspark.sql.functions import pandas_udf
+from pyspark.sql import functions as F
+
+@pandas_udf("int")
+def label_data(sensor: pd.Series) -> pd.Series:
+
+  anomaly = (sensor < 20) | (sensor > 80)
+  anomaly = anomaly.astype(int)
+  return anomaly
+
+train_df = train_df.withColumn("anomaly", label_data("sensor_1"))
+test_df = test_df.withColumn("anomaly", label_data("sensor_1"))
+
+# COMMAND ----------
+
+train_df.write.saveAsTable(f"{database}.train", mode = "overwrite")
+test_df.write.saveAsTable(f"{database}.test", mode = "overwrite")

@@ -49,7 +49,6 @@ df_spec = (
   .withColumn("sensor_2", IntegerType(), minValue=0, maxValue=10, random=True)
   .withColumn("sensor_3", FloatType(), minValue=0.0001, maxValue=1.0001, random=True)
   .withColumn("state", StringType(), values=states, random=True)
-  .withColumn("anomaly", StringType(), values=[0, 1], random=True, weights = [8, 2])
 )
                             
 df = df_spec.build()
