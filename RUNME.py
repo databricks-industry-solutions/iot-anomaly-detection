@@ -32,37 +32,116 @@ from solacc.companion import NotebookSolutionCompanion
 
 # COMMAND ----------
 
+spark.sql(f"CREATE DATABASE IF NOT EXISTS databricks_solacc LOCATION '/databricks_solacc/'")
+spark.sql(f"CREATE TABLE IF NOT EXISTS databricks_solacc.dbsql (path STRING, id STRING, solacc STRING)")
+dbsql_config_table = "databricks_solacc.dbsql"
+
+# COMMAND ----------
+
 job_json = {
         "timeout_seconds": 28800,
         "max_concurrent_runs": 1,
         "tags": {
             "usage": "solacc_testing",
-            "group": "SOLACC"
+            "group": "MFG",
+            "accelerator": "iot-anomaly-detection"
         },
         "tasks": [
             {
-                "job_cluster_key": "sample_solacc_cluster",
+                "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"01_Introduction_And_Setup"
+                    "notebook_path": f"01_introduction_and_setup"
                 },
-                "task_key": "sample_solacc_01"
+                "task_key": "iot_ad_01"
             },
             {
-                "job_cluster_key": "sample_solacc_cluster",
+                "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"02_Analysis"
+                    "notebook_path": f"02_generate_iot_data"
                 },
-                "task_key": "sample_solacc_02",
+                "task_key": "iot_ad_02",
                 "depends_on": [
                     {
-                        "task_key": "sample_solacc_01"
+                        "task_key": "iot_ad_01"
+                    }
+                ]
+            },
+            {
+                "job_cluster_key": "iot_ad_cluster",
+                "notebook_task": {
+                    "notebook_path": f"03_ingest"
+                },
+                "task_key": "iot_ad_03",
+                "depends_on": [
+                    {
+                        "task_key": "iot_ad_02"
+                    }
+                ]
+            },
+            {
+                "job_cluster_key": "iot_ad_cluster",
+                "notebook_task": {
+                    "notebook_path": f"04_bronze"
+                },
+                "task_key": "iot_ad_04",
+                "depends_on": [
+                    {
+                        "task_key": "iot_ad_03"
+                    }
+                ]
+            },
+            {
+                "job_cluster_key": "iot_ad_cluster",
+                "notebook_task": {
+                    "notebook_path": f"05_silver"
+                },
+                "task_key": "iot_ad_05",
+                "depends_on": [
+                    {
+                        "task_key": "iot_ad_04"
+                    }
+                ]
+            },
+            {
+                "job_cluster_key": "iot_ad_cluster",
+                "notebook_task": {
+                    "notebook_path": f"06_gold"
+                },
+                "task_key": "iot_ad_06",
+                "depends_on": [
+                    {
+                        "task_key": "iot_ad_05"
+                    }
+                ]
+            },
+            {
+                "job_cluster_key": "iot_ad_cluster",
+                "notebook_task": {
+                    "notebook_path": f"07_train"
+                },
+                "task_key": "iot_ad_07",
+                "depends_on": [
+                    {
+                        "task_key": "iot_ad_06"
+                    }
+                ]
+            },
+            {
+                "job_cluster_key": "iot_ad_cluster",
+                "notebook_task": {
+                    "notebook_path": f"08_inference"
+                },
+                "task_key": "iot_ad_08",
+                "depends_on": [
+                    {
+                        "task_key": "iot_ad_07"
                     }
                 ]
             }
         ],
         "job_clusters": [
             {
-                "job_cluster_key": "sample_solacc_cluster",
+                "job_cluster_key": "iot_ad_cluster",
                 "new_cluster": {
                     "spark_version": "11.3.x-cpu-ml-scala2.12",
                 "spark_conf": {
@@ -71,8 +150,10 @@ job_json = {
                     "num_workers": 2,
                     "node_type_id": {"AWS": "i3.xlarge", "MSA": "Standard_DS3_v2", "GCP": "n1-highmem-4"},
                     "custom_tags": {
-                        "usage": "solacc_testing"
-                    },
+                      "usage": "solacc_testing",
+                      "group": "MFG",
+                      "accelerator": "iot-anomaly-detection"
+                  },
                 }
             }
         ]
@@ -82,4 +163,6 @@ job_json = {
 
 dbutils.widgets.dropdown("run_job", "False", ["True", "False"])
 run_job = dbutils.widgets.get("run_job") == "True"
-NotebookSolutionCompanion().deploy_compute(job_json, run_job=run_job)
+nsc = NotebookSolutionCompanion()
+nsc.deploy_compute(job_json, run_job=run_job)
+_ = nsc.deploy_dbsql("./dashboards/IoT Streaming SA Anomaly Detection.dbdash.dbdash", dbsql_config_table, spark)
