@@ -53,10 +53,6 @@ gold_df_pred = pipeline_model.transform(inference_df)
 
 # COMMAND ----------
 
-display(gold_df_pred)
-
-# COMMAND ----------
-
 gold_df_pred \
   .select("device_id", "state", "prediction", "datetime", "anomaly") \
   .writeStream \
@@ -66,3 +62,7 @@ gold_df_pred \
   .option("mergeSchema", "true") \
   .trigger(once = True) \
   .table(f"{database}.{target_table}_pred")
+
+# COMMAND ----------
+
+spark.table(f"{database}.{target_table}_pred").display()

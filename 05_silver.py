@@ -24,15 +24,7 @@ silver_df = spark.readStream \
   .format("delta") \
   .option("startingOffsets", startingOffsets) \
   .table(f"{database}.{source_table}") \
-  .withColumn("datetime", F.from_unixtime(F.col("timestamp")))
-
-display(silver_df)
-
-# COMMAND ----------
-
-#Write Stream
-
-silver_df.writeStream \
+  .withColumn("datetime", F.from_unixtime(F.col("timestamp"))).writeStream \
   .format("delta") \
   .outputMode("append") \
   .option("mergeSchema", "true") \

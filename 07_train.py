@@ -81,3 +81,7 @@ with mlflow.start_run(experiment_id = experiment_id, run_name = "xgboost_iot") a
   mlflow.log_metric("train_auroc", train_auroc)
   mlflow.log_metric("test_auroc", test_auroc)
   mlflow.spark.log_model(spark_model = pipeline_model, artifact_path = "model")
+
+# COMMAND ----------
+
+

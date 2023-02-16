@@ -23,16 +23,21 @@ startingOffsets = "earliest"
 gold_df = spark.readStream \
   .format("delta") \
   .option("startingOffsets", startingOffsets) \
-  .table(f"{database}.{source_table}")
-
-display(gold_df)
-
-# COMMAND ----------
-
-gold_df.writeStream \
+  .table(f"{database}.{source_table}").writeStream \
   .format("delta") \
   .outputMode("append") \
   .option("checkpointLocation", checkpoint_location_target) \
   .option("mergeSchema", "true") \
   .trigger(once = True) \
   .table(f"{database}.{target_table}")
+
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC 
+# MAGIC select count(1) from rvp_iot_sa.gold
+
+# COMMAND ----------
+
+

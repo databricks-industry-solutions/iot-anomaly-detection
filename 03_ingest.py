@@ -56,6 +56,6 @@ display(spark.readStream.table("rvp_iot_sa.raw"))
 
 # Shut down all streaming queries after a while
 import time
-time.sleep(300) # wait 5 minutes
+time.sleep(1200) # wait 20 minutes
 for s in spark.streams.active:
   s.stop()

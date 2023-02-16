@@ -39,14 +39,7 @@ bronze_df = spark.readStream \
     "parsedJson", from_json(col("parsedValue"), json_schema)
   ) \
   .select("parsedJson.*") \
-  .dropna() #\
-  #.withColumn("anomaly", col("anomaly").cast(IntegerType()))
-
-display(bronze_df)
-
-# COMMAND ----------
-
-bronze_df.writeStream \
+  .dropna().writeStream \
   .format("delta") \
   .outputMode("append") \
   .option("checkpointLocation", checkpoint_location_target) \
