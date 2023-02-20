@@ -7,6 +7,10 @@
 
 # COMMAND ----------
 
+dbutils.fs.rm("/dbfs/tmp/checkpoints", True)
+
+# COMMAND ----------
+
 dbutils.widgets.text("row_delay_seconds", "0.1")
 row_delay_seconds = float(getArgument("row_delay_seconds"))
 
@@ -28,13 +32,13 @@ states = [ 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA',
 table_name = "iot_stream_example_"
 spark.sql(f"drop table if exists {table_name}")
 
-data_rows = 10000
+data_rows = 2000
 df_spec = (
   dg.DataGenerator(
     spark,
     name="test_data_set1",
     rows=data_rows,
-    partitions=10
+    partitions=4
   )
   .withIdOutput()
   .withColumn("device_id", IntegerType(), minValue=1, maxValue=1000)
@@ -89,26 +93,46 @@ streaming_df = (
 import time
 
 # kafka config
-kafka_bootstrap_servers = "b-1.oetrta-kafka.oz8lgl.c3.kafka.us-west-2.amazonaws.com:9094,b-2.oetrta-kafka.oz8lgl.c3.kafka.us-west-2.amazonaws.com:9094"
-topic = "iot_msg_01_2023"
+kafka_bootstrap_servers = "pkc-1wvvj.westeurope.azure.confluent.cloud:9092"
+security_protocol = "SASL_SSL"
+sasl_mechanism = "PLAIN"
+sasl_username = "ER4NIW5GR6FLOTMD"
+sasl_password = "TaeXQO2jSEbk6vhK32obQGF2O3WMoX9KrwL0zfaFBnKORLQSqVCKNPsaRe7IO0tT"
+topic = "iot_msg_topic"
+sasl_config = f'org.apache.kafka.common.security.plain.PlainLoginModule required username="{sasl_username}" password="{sasl_password}";'
 checkpoint_path = "/dbfs/tmp/checkpoints"
+
+options = {
+    "kafka.ssl.endpoint.identification.algorithm": "https",
+    "kafka.sasl.jaas.config": sasl_config,
+    "kafka.sasl.mechanism": sasl_mechanism,
+    "kafka.security.protocol" : security_protocol,
+    "kafka.bootstrap.servers": kafka_bootstrap_servers,
+    "group.id": 1,
+    "subscribe": topic,
+    "topic": topic,
+    "checkpointLocation": checkpoint_path
+}
+
+
 kafka_checkpoint_path = f"{checkpoint_path}/kafka/{topic}"
 dbutils.fs.rm(kafka_checkpoint_path, recurse = True)
 
 def delay(row):
-    # Wait 1 second for each row
+    # Wait x seconds for each batch
     time.sleep(row_delay_seconds)
     pass
 
 (
   streaming_df
     .writeStream
-    .foreach(delay)
+    .foreachBatch(delay)
     .format("kafka")
-    .option("kafka.bootstrap.servers", kafka_bootstrap_servers)
-    .option("kafka.security.protocol", "SSL")
-    .option("checkpointLocation", kafka_checkpoint_path)
-    .option("topic", topic)
+    .options(**options)
 ) \
   .trigger(once = True) \
   .start()
+
+# COMMAND ----------
+
+
