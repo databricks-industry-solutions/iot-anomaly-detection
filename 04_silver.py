@@ -17,26 +17,51 @@ spark.sql(f"drop table if exists {database}.{target_table}")
 # COMMAND ----------
 
 from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, StructField, FloatType, IntegerType, StringType
 
 startingOffsets = "earliest"
 
 silver_df = spark.readStream \
   .format("delta") \
   .option("startingOffsets", startingOffsets) \
-  .table(f"{database}.{source_table}") \
-  .withColumn("datetime", F.from_unixtime(F.col("timestamp"))).writeStream \
+  .table(f"{database}.{source_table}")
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+# DBTITLE 1,Parsing data from our payload into columns
+json_schema = StructType([
+  StructField("timestamp", IntegerType(), True),
+  StructField("device_id", IntegerType(), True),
+  StructField("device_model", StringType(), True),
+  StructField("sensor_1", FloatType(), True),
+  StructField("sensor_2", FloatType(), True),
+  StructField("sensor_3", FloatType(), True),
+  StructField("state", StringType(), True)
+])
+
+silver_df = silver_df \
+  .withColumn(
+    "struct_payload",
+    F.from_json("parsedValue", schema = json_schema)
+  ) \
+  .select("struct_payload.*") \
+  .withColumn("datetime", F.from_unixtime("timestamp"))
+
+# COMMAND ----------
+
+# DBTITLE 1,Writing into Silver
+silver_df \
+  .writeStream \
   .format("delta") \
   .outputMode("append") \
   .option("mergeSchema", "true") \
   .option("checkpointLocation", checkpoint_location_target) \
   .trigger(once = True) \
   .table(f"{database}.{target_table}")
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC 
-# MAGIC select count(1) from rvp_iot_sa.silver
 
 # COMMAND ----------
 
