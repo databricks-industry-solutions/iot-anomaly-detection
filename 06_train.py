@@ -2,12 +2,12 @@
 dbutils.widgets.text("database", "rvp_iot_sa")
 dbutils.widgets.text("train_table", "train")
 dbutils.widgets.text("test_table", "test")
-dbutils.widgets.text("experiment_name", "/Shared/rvp_iot_sa_anomaly")
+dbutils.widgets.text("model_name", "iot_anomaly_detection_xgboost")
 
 database = getArgument("database")
 train_table = getArgument("train_table")
 test_table = getArgument("test_table")
-experiment_name = getArgument("experiment_name")
+model_name = getArgument("model_name")
 
 # COMMAND ----------
 
@@ -128,7 +128,7 @@ space = {
   'max_depth': hp.uniform('max_depth', 2, 15),
   'num_estimators': hp.uniform('num_estimators', 10, 50)
 }
-model_name = "iot_anomaly_detection_xgboost"
+
 algo = tpe.suggest
 
 # COMMAND ----------
@@ -147,8 +147,6 @@ def train_with_hyperopt_train_gbt(params):
  
   model, log_loss_score = train_gbt(max_depth, num_estimators)
   mlflow.log_metric("test_log_loss", log_loss_score)
-  #mlflow.log_param("max_depth", max_depth)
-  #mlflow.log_param("num_estimators", num_estimators)
   
   # Hyperopt expects you to return a loss (for which lower is better), so take the negative of the f1_score (for which higher is better).
   return {'loss': (-log_loss_score), 'status': STATUS_OK}
@@ -176,3 +174,18 @@ with mlflow.start_run() as run:
 
   # Capture the run_id to use when registering our model
   run_id = run.info.run_id
+
+# COMMAND ----------
+
+# DBTITLE 1,Transition the best model to Production
+from mlflow.tracking import MlflowClient
+
+client = MlflowClient()
+model_info = client.get_registered_model(model_name)
+latest_version = model_info.latest_versions[-1]
+
+client.transition_model_version_stage(
+  name = model_name,
+  version = latest_version.version,
+  stage="Production"
+)
