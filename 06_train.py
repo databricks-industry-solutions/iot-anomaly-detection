@@ -57,16 +57,16 @@ from pyspark.ml.evaluation import BinaryClassificationEvaluator
 import mlflow
 
 def make_pipeline(
-  label_col: str,
   num_estimators: int,
   max_depth: int,
   features_col: str = "features",
-  prediction_col: str = "prediction"
+  prediction_col: str = "prediction",
+  label_col: str = "anomaly"
 ):
 
   evaluator = BinaryClassificationEvaluator()
-  evaluator.setRawPredictionCol("prediction")
-  evaluator.setLabelCol("anomaly")
+  evaluator.setRawPredictionCol(prediction_col)
+  evaluator.setLabelCol(label_col)
 
   xgboost = SparkXGBClassifier(
       features_col = features_col, 
@@ -85,53 +85,94 @@ def make_pipeline(
     ]
   )
 
-  return pipeline
+  return pipeline, evaluator
 
 # COMMAND ----------
 
-# DBTITLE 1,Setting up Hyperopt for Hyperparameter Tuning
-from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
+from hyperopt import hp, fmin, tpe, STATUS_OK
+from mlflow import spark as mlflow_spark
+
+def train_gbt(max_depth, num_estimators):
+  '''
+  This train() function:
+   - takes hyperparameters as inputs (for tuning later)
+   - returns the F1 score on the validation dataset
  
-def train_with_hyperopt(params):
+  Wrapping code as a function makes it easier to reuse the code later with Hyperopt.
+  '''
+  # Use MLflow to track training.
+  # Specify "nested=True" since this single model will be logged as a child run of Hyperopt's run.
+  with mlflow.start_run(nested=True):
+    mlflow.log_param("Model Type", "XGBoost")
+    
+    pipeline, evaluator = make_pipeline(
+      max_depth = max_depth,
+      num_estimators = num_estimators
+    )
+    
+    # Train model.  This also runs the indexers.
+    pipeline = pipeline.fit(train_df)
+    
+    # Make predictions.
+    predictions = pipeline.transform(test_df)
+    validation_metric = evaluator.evaluate(predictions)
+  
+  return pipeline, validation_metric
+
+
+
+# COMMAND ----------
+
+# DBTITLE 1,Hyperopt
+space = {
+  'max_depth': hp.uniform('max_depth', 2, 15),
+  'num_estimators': hp.uniform('num_estimators', 10, 50)
+}
+model_name = "iot_anomaly_detection_xgboost"
+algo = tpe.suggest
+
+# COMMAND ----------
+
+def train_with_hyperopt_train_gbt(params):
   """
+  An example train method that calls into MLlib.
   This method is passed to hyperopt.fmin().
   
   :param params: hyperparameters as a dict. Its structure is consistent with how search space is defined. See below.
   :return: dict with fields 'loss' (scalar loss) and 'status' (success/failure status of run)
   """
   # For integer parameters, make sure to convert them to int type if Hyperopt is searching over a continuous range of values.
-  minInstancesPerNode = int(params['minInstancesPerNode'])
-  maxBins = int(params['maxBins'])
+  max_depth = int(params['max_depth'])
+  num_estimators = int(params['num_estimators'])
  
-  model, f1_score = train_tree(minInstancesPerNode, maxBins)
+  model, log_loss_score = train_gbt(max_depth, num_estimators)
+  mlflow.log_metric("test_log_loss", log_loss_score)
+  #mlflow.log_param("max_depth", max_depth)
+  #mlflow.log_param("num_estimators", num_estimators)
   
   # Hyperopt expects you to return a loss (for which lower is better), so take the negative of the f1_score (for which higher is better).
-  loss = - f1_score
-  return {'loss': loss, 'status': STATUS_OK}
+  return {'loss': (-log_loss_score), 'status': STATUS_OK}
 
 # COMMAND ----------
 
-# DBTITLE 1,Defining the search space
+with mlflow.start_run() as run:
+  best_params = fmin(
+    fn = train_with_hyperopt_train_gbt,
+    space = space,
+    algo = algo,
+    max_evals = 10
+  )
+  
+  gradient_final_model, final_gradient_val_log_loss = train_gbt(
+    int(best_params['max_depth']),
+    int(best_params['num_estimators'])
+  )
+  
+  mlflow.spark.log_model(
+    gradient_final_model,
+    "model",
+    registered_model_name = model_name
+  )
 
-
-n_estimators = 3,
-    max_depth = 5
-
-# COMMAND ----------
-
-# MLflow Experiment & Run
-
-experiment = mlflow.get_experiment_by_name(name = experiment_name)
-experiment_id = experiment.experiment_id if experiment else mlflow.create_experiment(name = experiment_name)
-mlflow.end_run()
-
-with mlflow.start_run(experiment_id = experiment_id, run_name = "xgboost_iot") as run:
-
-  pipeline_model = pipeline.fit(train_df)
-  train_df_pred = pipeline_model.transform(train_df)
-  test_df_pred = pipeline_model.transform(test_df)
-  train_auroc = evaluator.evaluate(train_df_pred, {evaluator.metricName: "areaUnderROC"})
-  test_auroc = evaluator.evaluate(test_df_pred, {evaluator.metricName: "areaUnderROC"})
-  mlflow.log_metric("train_auroc", train_auroc)
-  mlflow.log_metric("test_auroc", test_auroc)
-  mlflow.spark.log_model(spark_model = pipeline_model, artifact_path = "model")
+  # Capture the run_id to use when registering our model
+  run_id = run.info.run_id
