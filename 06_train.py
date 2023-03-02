@@ -56,6 +56,9 @@ from pyspark.ml import Pipeline
 from pyspark.ml.evaluation import BinaryClassificationEvaluator
 import mlflow
 
+username = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
+mlflow.set_experiment('/Users/{}/iot_anomaly'.format(username))
+
 def make_pipeline(
   num_estimators: int,
   max_depth: int,

@@ -64,12 +64,19 @@ job_json = {
                     {
                         "task_key": "iot_ad_01"
                     }
+                ],
+                "libraries": [
+                    {
+                        "maven": {
+                            "coordinates": "org.apache.kafka:kafka-clients:3.4.0"
+                        }
+                    }
                 ]
             },
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"03_ingest"
+                    "notebook_path": f"03_bronze"
                 },
                 "task_key": "iot_ad_03",
                 "depends_on": [
@@ -81,7 +88,7 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"04_bronze"
+                    "notebook_path": f"04_silver"
                 },
                 "task_key": "iot_ad_04",
                 "depends_on": [
@@ -93,7 +100,7 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"05_silver"
+                    "notebook_path": f"05_create_train_test_sets"
                 },
                 "task_key": "iot_ad_05",
                 "depends_on": [
@@ -105,7 +112,7 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"06_gold"
+                    "notebook_path": f"06_train"
                 },
                 "task_key": "iot_ad_06",
                 "depends_on": [
@@ -117,24 +124,12 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"07_train"
+                    "notebook_path": f"07_inference"
                 },
                 "task_key": "iot_ad_07",
                 "depends_on": [
                     {
                         "task_key": "iot_ad_06"
-                    }
-                ]
-            },
-            {
-                "job_cluster_key": "iot_ad_cluster",
-                "notebook_task": {
-                    "notebook_path": f"08_inference"
-                },
-                "task_key": "iot_ad_08",
-                "depends_on": [
-                    {
-                        "task_key": "iot_ad_07"
                     }
                 ]
             }
