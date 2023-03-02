@@ -1,0 +1,1130 @@
+{
+  "queries": [
+    {
+      "id": "a6440254-c18d-4eb3-b7dd-fa08f495ab29",
+      "name": "hive_metastore.rvp_iot_sa.gold anomalies",
+      "description": null,
+      "query": "select \n\tdate(datetime),\n\tCASE WHEN (sensor_1 < 20 or sensor_1 > 80) THEN sensor_1 ELSE NULL END as anomaly_reading,\n\tCASE WHEN (sensor_1 > 20 and sensor_1 <80) THEN sensor_1 ELSE NULL END as non_anomaly_reading\nfrom gold\n\t",
+      "options": {
+        "parent": "folders/968903799810018",
+        "apply_auto_limit": true,
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/4156927442750489",
+        "visualization_control_order": [],
+        "catalog": "hive_metastore",
+        "schema": "rvp_iot_sa",
+        "parameters": []
+      },
+      "visualizations": [
+        {
+          "id": "21a15452-cc7d-42f6-98ab-603837c37204",
+          "type": "CHART",
+          "name": "Bar 2",
+          "description": "",
+          "options": {
+            "version": 2,
+            "globalSeriesType": "column",
+            "sortX": true,
+            "sortY": true,
+            "legend": {
+              "traceorder": "normal"
+            },
+            "xAxis": {
+              "type": "-",
+              "labels": {
+                "enabled": true
+              }
+            },
+            "yAxis": [
+              {
+                "type": "-"
+              },
+              {
+                "type": "-",
+                "opposite": true
+              }
+            ],
+            "alignYAxesAtZero": true,
+            "error_y": {
+              "type": "data",
+              "visible": true
+            },
+            "series": {
+              "stacking": null,
+              "error_y": {
+                "type": "data",
+                "visible": true
+              }
+            },
+            "seriesOptions": {
+              "anomaly_reading": {
+                "name": "anomaly",
+                "yAxis": 0,
+                "type": "column",
+                "color": "#000000"
+              },
+              "non_anomaly_reading": {
+                "yAxis": 0,
+                "type": "column",
+                "name": "non_anomaly",
+                "color": "#8CFFB4"
+              }
+            },
+            "valuesOptions": {},
+            "direction": {
+              "type": "counterclockwise"
+            },
+            "sizemode": "diameter",
+            "coefficient": 1,
+            "numberFormat": "0,0[.]00000",
+            "percentFormat": "0[.]00%",
+            "textFormat": "",
+            "missingValuesAsZero": true,
+            "useAggregationsUi": true,
+            "swappedAxes": false,
+            "dateTimeFormat": "YYYY-MM-DD HH:mm",
+            "showDataLabels": false,
+            "columnConfigurationMap": {
+              "x": {
+                "column": "datetime",
+                "id": "column_46af263e132730"
+              },
+              "y": [
+                {
+                  "column": "anomaly_reading",
+                  "id": "column_46af263e132491"
+                },
+                {
+                  "id": "column_46af263e338411",
+                  "column": "non_anomaly_reading"
+                }
+              ]
+            },
+            "isAggregationOn": false,
+            "condensed": true,
+            "withRowNumber": true,
+            "hideXAxis": false
+          },
+          "query_plan": {
+            "selects": [
+              {
+                "column": "datetime"
+              },
+              {
+                "column": "anomaly_reading"
+              },
+              {
+                "column": "non_anomaly_reading"
+              }
+            ]
+          }
+        },
+        {
+          "id": "a07fc3a8-d894-4568-b1d8-518f21755113",
+          "type": "TABLE",
+          "name": "Results",
+          "description": "",
+          "options": {
+            "version": 2
+          },
+          "query_plan": null
+        },
+        {
+          "id": "d62ddaf0-8ce9-41a3-960f-d5662fb9d260",
+          "type": "CHART",
+          "name": "Bar 1",
+          "description": "",
+          "options": {
+            "version": 2,
+            "globalSeriesType": "column",
+            "sortX": true,
+            "sortY": true,
+            "legend": {
+              "traceorder": "normal"
+            },
+            "xAxis": {
+              "type": "-",
+              "labels": {
+                "enabled": true
+              }
+            },
+            "yAxis": [
+              {
+                "type": "-"
+              },
+              {
+                "type": "-",
+                "opposite": true
+              }
+            ],
+            "alignYAxesAtZero": true,
+            "error_y": {
+              "type": "data",
+              "visible": true
+            },
+            "series": {
+              "stacking": "stack",
+              "error_y": {
+                "type": "data",
+                "visible": true
+              }
+            },
+            "seriesOptions": {
+              "column_46af263e18240": {
+                "yAxis": 0,
+                "type": "column"
+              }
+            },
+            "valuesOptions": {},
+            "direction": {
+              "type": "counterclockwise"
+            },
+            "sizemode": "diameter",
+            "coefficient": 1,
+            "numberFormat": "0,0[.]00000",
+            "percentFormat": "0[.]00%",
+            "textFormat": "",
+            "missingValuesAsZero": true,
+            "useAggregationsUi": true,
+            "swappedAxes": false,
+            "dateTimeFormat": "YYYY-MM-DD HH:mm",
+            "showDataLabels": false,
+            "columnConfigurationMap": {
+              "x": {
+                "column": "device_model",
+                "id": "column_46af263e18238"
+              },
+              "y": [
+                {
+                  "id": "column_46af263e18240",
+                  "column": "device_id",
+                  "transform": "COUNT_DISTINCT"
+                }
+              ],
+              "series": {
+                "column": "device_model",
+                "id": "column_46af263e18237"
+              }
+            },
+            "isAggregationOn": true
+          },
+          "query_plan": {
+            "selects": [
+              {
+                "column": "device_model"
+              },
+              {
+                "function": "COUNT_DISTINCT",
+                "args": [
+                  {
+                    "column": "device_id"
+                  }
+                ],
+                "alias": "column_46af263e18240"
+              },
+              {
+                "column": "device_model"
+              }
+            ],
+            "groups": [
+              {
+                "column": "device_model"
+              },
+              {
+                "column": "device_model"
+              }
+            ]
+          }
+        },
+        {
+          "id": "d8a33eea-8a43-47bb-a87f-24971bb2b27e",
+          "type": "CHART",
+          "name": "Line 1",
+          "description": "",
+          "options": {
+            "version": 2,
+            "globalSeriesType": "line",
+            "sortX": true,
+            "sortY": true,
+            "legend": {
+              "traceorder": "normal"
+            },
+            "xAxis": {
+              "type": "-",
+              "labels": {
+                "enabled": true
+              }
+            },
+            "yAxis": [
+              {
+                "type": "-"
+              },
+              {
+                "type": "-",
+                "opposite": true
+              }
+            ],
+            "alignYAxesAtZero": true,
+            "error_y": {
+              "type": "data",
+              "visible": true
+            },
+            "series": {
+              "stacking": null,
+              "error_y": {
+                "type": "data",
+                "visible": true
+              },
+              "percentValues": false
+            },
+            "seriesOptions": {
+              "sensor_1": {
+                "yAxis": 0,
+                "type": "line"
+              },
+              "column_46af263e19117": {
+                "yAxis": 0,
+                "type": "line"
+              }
+            },
+            "valuesOptions": {},
+            "direction": {
+              "type": "counterclockwise"
+            },
+            "sizemode": "diameter",
+            "coefficient": 1,
+            "numberFormat": "0,0[.]00000",
+            "percentFormat": "0[.]00%",
+            "textFormat": "",
+            "missingValuesAsZero": false,
+            "useAggregationsUi": true,
+            "swappedAxes": false,
+            "dateTimeFormat": "YYYY-MM-DD HH:mm",
+            "showDataLabels": false,
+            "numBins": 30,
+            "columnConfigurationMap": {
+              "x": {
+                "column": "datetime",
+                "id": "column_46af263e19115"
+              },
+              "y": [
+                {
+                  "id": "column_46af263e19117",
+                  "column": "sensor_1",
+                  "transform": "SUM"
+                }
+              ]
+            },
+            "isAggregationOn": true
+          },
+          "query_plan": {
+            "selects": [
+              {
+                "column": "datetime"
+              },
+              {
+                "function": "SUM",
+                "args": [
+                  {
+                    "column": "sensor_1"
+                  }
+                ],
+                "alias": "column_46af263e19117"
+              }
+            ],
+            "groups": [
+              {
+                "column": "datetime"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "1ebe42f0-ae0e-4698-b12e-ea1c637fcc17",
+      "name": "pred_filter",
+      "description": null,
+      "query": "select * from inference_pred\nwhere datetime > \"{{ After }}\" and datetime < \"{{ Before }}\"\nand contains(\"{{ States }}\", state)",
+      "options": {
+        "parent": "folders/968903799810018",
+        "apply_auto_limit": true,
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/4156927442745145",
+        "visualization_control_order": [
+          "Before",
+          "States",
+          "After"
+        ],
+        "catalog": "hive_metastore",
+        "schema": "rvp_iot_sa",
+        "parameters": [
+          {
+            "title": "Before",
+            "name": "Before",
+            "type": "date",
+            "parentQueryId": "1ebe42f0-ae0e-4698-b12e-ea1c637fcc17",
+            "locals": [],
+            "urlPrefix": "p_",
+            "value": "2023-01-17",
+            "$$value": "2023-01-16T23:00:00.000Z"
+          },
+          {
+            "queryId": "dd094494-c6c2-41f5-87f1-f004b0516af4",
+            "title": "States",
+            "name": "States",
+            "type": "query",
+            "parentQueryId": "1ebe42f0-ae0e-4698-b12e-ea1c637fcc17",
+            "locals": [],
+            "urlPrefix": "p_",
+            "multiValuesOptions": {
+              "prefix": "",
+              "suffix": "",
+              "separator": ","
+            },
+            "value": [
+              "AZ",
+              "AR",
+              "UT",
+              "LA",
+              "KS"
+            ],
+            "$$value": [
+              "AZ",
+              "AR",
+              "UT",
+              "LA",
+              "KS"
+            ]
+          },
+          {
+            "title": "After",
+            "name": "After",
+            "type": "date",
+            "parentQueryId": "1ebe42f0-ae0e-4698-b12e-ea1c637fcc17",
+            "locals": [],
+            "urlPrefix": "p_",
+            "value": "2022-01-01",
+            "$$value": "2021-12-31T23:00:00.000Z"
+          }
+        ]
+      },
+      "visualizations": [
+        {
+          "id": "1ec5b881-c487-4596-8ee9-4164c910787c",
+          "type": "CHART",
+          "name": "Bar 1",
+          "description": "",
+          "options": {
+            "version": 2,
+            "globalSeriesType": "column",
+            "sortX": true,
+            "sortY": true,
+            "legend": {
+              "traceorder": "normal"
+            },
+            "xAxis": {
+              "type": "-",
+              "labels": {
+                "enabled": true
+              }
+            },
+            "yAxis": [
+              {
+                "type": "-"
+              },
+              {
+                "type": "-",
+                "opposite": true
+              }
+            ],
+            "alignYAxesAtZero": true,
+            "error_y": {
+              "type": "data",
+              "visible": true
+            },
+            "series": {
+              "stacking": "stack",
+              "error_y": {
+                "type": "data",
+                "visible": true
+              }
+            },
+            "seriesOptions": {
+              "column_46af263e398791": {
+                "yAxis": 0,
+                "type": "column",
+                "color": "#604FE9",
+                "name": "Predicted Anomalies"
+              },
+              "column_46af263e398793": {
+                "yAxis": 0,
+                "type": "column",
+                "color": "#00B6EB",
+                "name": "Total Number of Devices"
+              }
+            },
+            "valuesOptions": {},
+            "direction": {
+              "type": "counterclockwise"
+            },
+            "sizemode": "diameter",
+            "coefficient": 1,
+            "numberFormat": "0,0[.]00000",
+            "percentFormat": "0[.]00%",
+            "textFormat": "",
+            "missingValuesAsZero": true,
+            "useAggregationsUi": true,
+            "swappedAxes": true,
+            "dateTimeFormat": "YYYY-MM-DD HH:mm",
+            "showDataLabels": false,
+            "columnConfigurationMap": {
+              "x": {
+                "column": "datetime",
+                "transform": "MONTH_LEVEL",
+                "id": "column_46af263e398789"
+              },
+              "y": [
+                {
+                  "id": "column_46af263e398791",
+                  "column": "prediction",
+                  "transform": "SUM"
+                },
+                {
+                  "id": "column_46af263e398793",
+                  "column": "device_id",
+                  "transform": "COUNT"
+                }
+              ]
+            },
+            "isAggregationOn": true
+          },
+          "query_plan": {
+            "selects": [
+              {
+                "function": "DATE_TRUNC",
+                "args": [
+                  {
+                    "column": "datetime"
+                  },
+                  {
+                    "string": "MONTH"
+                  }
+                ],
+                "alias": "column_46af263e398789"
+              },
+              {
+                "function": "SUM",
+                "args": [
+                  {
+                    "column": "prediction"
+                  }
+                ],
+                "alias": "column_46af263e398791"
+              },
+              {
+                "function": "COUNT",
+                "args": [
+                  {
+                    "column": "device_id"
+                  }
+                ],
+                "alias": "column_46af263e398793"
+              }
+            ],
+            "groups": [
+              {
+                "column": "column_46af263e398789"
+              }
+            ]
+          }
+        },
+        {
+          "id": "250451ca-0e37-4129-b07f-36eeb6cdf30d",
+          "type": "TABLE",
+          "name": "Results",
+          "description": "",
+          "options": {
+            "version": 2
+          },
+          "query_plan": null
+        },
+        {
+          "id": "d23954f7-c6f7-4a94-8f37-1d7039b3634c",
+          "type": "CHOROPLETH",
+          "name": "Map (Choropleth) 1",
+          "description": "",
+          "options": {
+            "mapType": "usa",
+            "keyColumn": "state",
+            "targetField": "usps_abbrev",
+            "valueColumn": "prediction",
+            "clusteringMode": "q",
+            "steps": "10",
+            "valueFormat": "0,0.00",
+            "noValuePlaceholder": "",
+            "colors": {
+              "min": "#8CFFB4",
+              "max": "#A58AFF",
+              "background": "#ffffff",
+              "borders": "#ffffff",
+              "noValue": "#555555"
+            },
+            "legend": {
+              "visible": true,
+              "position": "bottom-left",
+              "alignText": "right"
+            },
+            "tooltip": {
+              "enabled": true,
+              "template": "<b>{{ @@name }}</b>: {{ @@value }}"
+            },
+            "popup": {
+              "enabled": true,
+              "template": "Region: <b>{{ @@name }}</b>\n<br>\nValue: <b>{{ @@value }}</b>"
+            },
+            "condensed": true,
+            "withRowNumber": true
+          },
+          "query_plan": null
+        }
+      ]
+    },
+    {
+      "id": "f8e55262-102e-406e-8c89-cc093e77f9e5",
+      "name": "avg_anomalies_daily",
+      "description": null,
+      "query": "select hour(timestamp(timestamp)) as anomaly_hour, sum(prediction) as qty_anomalies from\n\n(\n\tselect * from inference_pred p\n\tinner join gold g\n\ton g.device_id = p.device_id and g.state = p.state\n)\n\ngroup by anomaly_hour\norder by anomaly_hour",
+      "options": {
+        "parent": "folders/968903799810018",
+        "apply_auto_limit": true,
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/4156927443207614",
+        "visualization_control_order": [],
+        "catalog": "hive_metastore",
+        "schema": "rvp_iot_sa",
+        "parameters": []
+      },
+      "visualizations": [
+        {
+          "id": "26447e31-fabb-4833-b2b8-78b9293f1b90",
+          "type": "TABLE",
+          "name": "Results",
+          "description": "",
+          "options": {
+            "version": 2
+          },
+          "query_plan": null
+        },
+        {
+          "id": "b75ff59f-06d0-4d00-b752-7dd975e60d87",
+          "type": "CHART",
+          "name": "Bar 1",
+          "description": "",
+          "options": {
+            "version": 2,
+            "globalSeriesType": "column",
+            "sortX": true,
+            "sortY": true,
+            "legend": {
+              "traceorder": "normal"
+            },
+            "xAxis": {
+              "type": "-",
+              "labels": {
+                "enabled": true
+              },
+              "title": {
+                "text": "Hour of Day"
+              }
+            },
+            "yAxis": [
+              {
+                "type": "logarithmic",
+                "title": {
+                  "text": "Quantity Anomalies (Log)"
+                }
+              },
+              {
+                "type": "-",
+                "opposite": true
+              }
+            ],
+            "alignYAxesAtZero": true,
+            "error_y": {
+              "type": "data",
+              "visible": true
+            },
+            "series": {
+              "stacking": null,
+              "error_y": {
+                "type": "data",
+                "visible": true
+              }
+            },
+            "seriesOptions": {
+              "column_306944f1127825": {
+                "name": "qty_anomalies",
+                "yAxis": 0,
+                "type": "column"
+              }
+            },
+            "valuesOptions": {},
+            "direction": {
+              "type": "counterclockwise"
+            },
+            "sizemode": "diameter",
+            "coefficient": 1,
+            "numberFormat": "0,0[.]00000",
+            "percentFormat": "0[.]00%",
+            "textFormat": "",
+            "missingValuesAsZero": true,
+            "useAggregationsUi": true,
+            "swappedAxes": false,
+            "dateTimeFormat": "YYYY-MM-DD HH:mm",
+            "showDataLabels": false,
+            "columnConfigurationMap": {
+              "x": {
+                "column": "anomaly_hour",
+                "id": "column_306944f1127824"
+              },
+              "y": [
+                {
+                  "column": "qty_anomalies",
+                  "id": "column_306944f1127825",
+                  "transform": "SUM"
+                }
+              ]
+            },
+            "isAggregationOn": true,
+            "hideYAxes": true
+          },
+          "query_plan": {
+            "selects": [
+              {
+                "column": "anomaly_hour"
+              },
+              {
+                "function": "SUM",
+                "args": [
+                  {
+                    "column": "qty_anomalies"
+                  }
+                ],
+                "alias": "column_306944f1127825"
+              }
+            ],
+            "groups": [
+              {
+                "column": "anomaly_hour"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "dd094494-c6c2-41f5-87f1-f004b0516af4",
+      "name": "states",
+      "description": null,
+      "query": "select distinct(state) from silver",
+      "options": {
+        "parent": "folders/968903799810018",
+        "apply_auto_limit": true,
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/4156927442745147",
+        "visualization_control_order": [],
+        "catalog": "hive_metastore",
+        "schema": "rvp_iot_sa",
+        "parameters": []
+      },
+      "visualizations": [
+        {
+          "id": "c2fb57f2-bf38-4bc8-8d4e-82eacf409a4b",
+          "type": "TABLE",
+          "name": "Results",
+          "description": "",
+          "options": {
+            "version": 2
+          },
+          "query_plan": null
+        }
+      ]
+    },
+    {
+      "id": "e0eb4062-f875-4bec-9640-9f0bc6c0f24e",
+      "name": "device_count",
+      "description": null,
+      "query": "select count(distinct(device_id)) from gold",
+      "options": {
+        "parent": "folders/968903799810018",
+        "apply_auto_limit": true,
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/4156927443207458",
+        "visualization_control_order": [],
+        "catalog": "hive_metastore",
+        "schema": "rvp_iot_sa",
+        "parameters": []
+      },
+      "visualizations": [
+        {
+          "id": "9e249716-4cc5-4380-9781-12a84839bafb",
+          "type": "TABLE",
+          "name": "Results",
+          "description": "",
+          "options": {
+            "version": 2
+          },
+          "query_plan": null
+        },
+        {
+          "id": "f61fd7bf-9321-4a32-84fc-464ed846cf9b",
+          "type": "COUNTER",
+          "name": "Counter 1",
+          "description": "",
+          "options": {
+            "counterLabel": "devices",
+            "counterColName": "count(DISTINCT device_id)",
+            "rowNumber": 1,
+            "targetRowNumber": 1,
+            "stringDecimal": 0,
+            "stringDecChar": ".",
+            "stringThouSep": ",",
+            "tooltipFormat": "0,0.000"
+          },
+          "query_plan": null
+        }
+      ]
+    },
+    {
+      "id": "1f390994-ddee-49bb-97ee-d07f2e84a969",
+      "name": "date_most_anomalies",
+      "description": null,
+      "query": "select sum(prediction), date_format(date(datetime), 'd MMM yyyy') from inference_pred\ngroup by date(datetime)\norder by date(datetime) desc\nlimit 1",
+      "options": {
+        "parent": "folders/968903799810018",
+        "apply_auto_limit": true,
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/4156927443207612",
+        "visualization_control_order": [],
+        "catalog": "hive_metastore",
+        "schema": "rvp_iot_sa",
+        "parameters": []
+      },
+      "visualizations": [
+        {
+          "id": "14e6fc83-6f75-45d0-bdcc-13a55ba842b1",
+          "type": "TABLE",
+          "name": "Results",
+          "description": "",
+          "options": {
+            "version": 2
+          },
+          "query_plan": null
+        },
+        {
+          "id": "9d3733f3-37c2-45ac-a36f-c6effcee6daf",
+          "type": "COUNTER",
+          "name": "Counter 1",
+          "description": "",
+          "options": {
+            "counterLabel": "",
+            "counterColName": "sum(prediction)",
+            "rowNumber": 1,
+            "targetRowNumber": 1,
+            "stringDecimal": 0,
+            "stringDecChar": ".",
+            "stringThouSep": ",",
+            "tooltipFormat": "0,0.000",
+            "targetColName": "date_format(datetime, d MMM yyyy)"
+          },
+          "query_plan": null
+        }
+      ]
+    },
+    {
+      "id": "3f4d4242-35b0-4ff7-83ff-dd8f6ec6ef16",
+      "name": "anomaly_events",
+      "description": null,
+      "query": "select sum(anomaly), count(1) from inference_pred",
+      "options": {
+        "parent": "folders/968903799810018",
+        "apply_auto_limit": true,
+        "folder_node_status": "ACTIVE",
+        "folder_node_internal_name": "tree/4156927443207505",
+        "visualization_control_order": [],
+        "catalog": "hive_metastore",
+        "schema": "rvp_iot_sa",
+        "parameters": []
+      },
+      "visualizations": [
+        {
+          "id": "4aed6d5c-94bf-4cd3-bdbc-011c1cf8343e",
+          "type": "TABLE",
+          "name": "Results",
+          "description": "",
+          "options": {
+            "version": 2
+          },
+          "query_plan": null
+        },
+        {
+          "id": "79aa5462-f792-4b8f-b7ec-f1e5034fdd13",
+          "type": "COUNTER",
+          "name": "Counter 1",
+          "description": "",
+          "options": {
+            "counterLabel": "anomaly events",
+            "counterColName": "sum(anomaly)",
+            "rowNumber": 1,
+            "targetRowNumber": 1,
+            "stringDecimal": 0,
+            "stringDecChar": ",",
+            "stringThouSep": ".",
+            "tooltipFormat": "0,0.000",
+            "formatTargetValue": true,
+            "targetColName": "count(1)",
+            "stringSuffix": ""
+          },
+          "query_plan": null
+        }
+      ]
+    }
+  ],
+  "dashboard": {
+    "id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+    "name": "IoT Streaming SA Anomaly Detection",
+    "widgets": [
+      {
+        "id": "d4d2e607-32ab-484d-b99e-6a7df7bf8951",
+        "width": 1,
+        "options": {
+          "parameterMappings": {
+            "Before": {
+              "name": "Before",
+              "type": "dashboard-level",
+              "mapTo": "Before",
+              "value": null,
+              "title": ""
+            },
+            "States": {
+              "name": "States",
+              "type": "dashboard-level",
+              "mapTo": "States",
+              "value": null,
+              "title": ""
+            },
+            "After": {
+              "name": "After",
+              "type": "dashboard-level",
+              "mapTo": "After",
+              "value": null,
+              "title": ""
+            }
+          },
+          "title": "Predicted Anomalies Over Time",
+          "description": "",
+          "isHidden": false,
+          "position": {
+            "autoHeight": false,
+            "sizeX": 3,
+            "sizeY": 13,
+            "minSizeX": 1,
+            "maxSizeX": 6,
+            "minSizeY": 5,
+            "maxSizeY": 1000,
+            "col": 3,
+            "row": 11
+          },
+          "overrideColors": false
+        },
+        "dashboard_id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+        "text": "",
+        "visualization_id": "1ec5b881-c487-4596-8ee9-4164c910787c"
+      },
+      {
+        "id": "6de2cf25-ceb2-4f2b-bae5-0d4faaec5748",
+        "width": 1,
+        "options": {
+          "parameterMappings": {},
+          "title": "Sensor 1: Anomaly vs. Non-Anomaly",
+          "description": "",
+          "isHidden": false,
+          "position": {
+            "autoHeight": false,
+            "sizeX": 6,
+            "sizeY": 6,
+            "minSizeX": 1,
+            "maxSizeX": 6,
+            "minSizeY": 5,
+            "maxSizeY": 1000,
+            "col": 0,
+            "row": 5
+          },
+          "overrideColors": false
+        },
+        "dashboard_id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+        "text": "",
+        "visualization_id": "21a15452-cc7d-42f6-98ab-603837c37204"
+      },
+      {
+        "id": "f3258198-137d-4a2f-9616-64da5465d4b1",
+        "width": 1,
+        "options": {
+          "parameterMappings": {
+            "Before": {
+              "name": "Before",
+              "type": "dashboard-level",
+              "mapTo": "Before",
+              "value": null,
+              "title": ""
+            },
+            "States": {
+              "name": "States",
+              "type": "dashboard-level",
+              "mapTo": "States",
+              "value": null,
+              "title": ""
+            },
+            "After": {
+              "name": "After",
+              "type": "dashboard-level",
+              "mapTo": "After",
+              "value": null,
+              "title": ""
+            }
+          },
+          "title": "Map (Choropleth) 1 - pred_filter",
+          "description": "Geospatial View",
+          "isHidden": false,
+          "position": {
+            "autoHeight": false,
+            "sizeX": 3,
+            "sizeY": 8,
+            "minSizeX": 2,
+            "maxSizeX": 6,
+            "minSizeY": 1,
+            "maxSizeY": 1000,
+            "col": 0,
+            "row": 16
+          },
+          "overrideColors": false
+        },
+        "dashboard_id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+        "text": "",
+        "visualization_id": "d23954f7-c6f7-4a94-8f37-1d7039b3634c"
+      },
+      {
+        "id": "cd5278cb-438b-44b0-a996-4e58b6d996ce",
+        "width": 1,
+        "options": {
+          "parameterMappings": {},
+          "title": "Total Anomaly Events",
+          "description": "",
+          "isHidden": false,
+          "position": {
+            "autoHeight": false,
+            "sizeX": 2,
+            "sizeY": 5,
+            "minSizeX": 1,
+            "maxSizeX": 6,
+            "minSizeY": 1,
+            "maxSizeY": 1000,
+            "col": 2,
+            "row": 0
+          },
+          "overrideColors": false
+        },
+        "dashboard_id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+        "text": "",
+        "visualization_id": "79aa5462-f792-4b8f-b7ec-f1e5034fdd13"
+      },
+      {
+        "id": "61f4f6cf-f547-4f0d-ac52-a677174170e2",
+        "width": 1,
+        "options": {
+          "parameterMappings": {},
+          "title": "Total Device Count",
+          "description": "",
+          "isHidden": false,
+          "position": {
+            "autoHeight": false,
+            "sizeX": 2,
+            "sizeY": 5,
+            "minSizeX": 1,
+            "maxSizeX": 6,
+            "minSizeY": 1,
+            "maxSizeY": 1000,
+            "col": 0,
+            "row": 0
+          },
+          "overrideColors": false
+        },
+        "dashboard_id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+        "text": "",
+        "visualization_id": "f61fd7bf-9321-4a32-84fc-464ed846cf9b"
+      },
+      {
+        "id": "2fb067ed-356a-441b-bb0a-e6666d0cfc60",
+        "width": 1,
+        "options": {
+          "parameterMappings": {},
+          "title": "Anomalies vs. Time",
+          "description": "Average Predicted Anomalies Throughout the Day",
+          "isHidden": false,
+          "position": {
+            "autoHeight": false,
+            "sizeX": 3,
+            "sizeY": 5,
+            "minSizeX": 1,
+            "maxSizeX": 6,
+            "minSizeY": 5,
+            "maxSizeY": 1000,
+            "col": 0,
+            "row": 11
+          },
+          "overrideColors": false
+        },
+        "dashboard_id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+        "text": "",
+        "visualization_id": "b75ff59f-06d0-4d00-b752-7dd975e60d87"
+      },
+      {
+        "id": "c0762cfb-7297-4de2-9b87-ed7e2aff3bf8",
+        "width": 1,
+        "options": {
+          "parameterMappings": {},
+          "title": "Date with the Most Anomalies",
+          "description": "",
+          "isHidden": false,
+          "position": {
+            "autoHeight": false,
+            "sizeX": 2,
+            "sizeY": 5,
+            "minSizeX": 1,
+            "maxSizeX": 6,
+            "minSizeY": 1,
+            "maxSizeY": 1000,
+            "col": 4,
+            "row": 0
+          },
+          "overrideColors": false
+        },
+        "dashboard_id": "22b77f7e-8236-414d-97eb-191572b1ccb4",
+        "text": "",
+        "visualization_id": "9d3733f3-37c2-45ac-a36f-c6effcee6daf"
+      }
+    ],
+    "tags": [],
+    "color_palette": [
+      "#077B9D",
+      "#8BCAE7",
+      "#99DDB4",
+      "#00A972"
+    ],
+    "dashboard_filters_enabled": false,
+    "parent": "folders/968903799810018",
+    "is_archived": false
+  },
+  "version": "1.0"
+}

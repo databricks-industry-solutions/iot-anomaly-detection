@@ -1,6 +1,6 @@
 name: MSA integration test PR
 on:
- pull_request:
+  pull_request:
 
 jobs:
  run-databricks-notebook:
