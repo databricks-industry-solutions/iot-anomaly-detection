@@ -3,7 +3,7 @@
 # MAGIC 
 # MAGIC ## Parse/Transform the data from Bronze and load to Silver
 # MAGIC 
-# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/04_silver.jpg" width="50%">
+# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/04_silver.jpg" width="25%">
 # MAGIC 
 # MAGIC This notebook will stream new events from the Bronze table, parse/transform them, and load them to a Delta table called "Silver".
 
@@ -45,7 +45,7 @@ bronze_df = (
 )
 
 #Uncomment to view the bronze data
-display(bronze_df)
+#display(bronze_df)
 
 # COMMAND ----------
 

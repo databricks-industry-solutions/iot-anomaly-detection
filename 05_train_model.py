@@ -3,7 +3,7 @@
 # MAGIC 
 # MAGIC ## Build Test/Train Datasets and Train Model
 # MAGIC 
-# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/05_train_model.jpg" width="40%">
+# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/05_train_model.jpg" width="25%">
 # MAGIC 
 # MAGIC This notebook will label the Silver data, create training and test datasets from the labeled data, train a machine learning model, and deploy the model the MLflow model registry.
 
@@ -32,10 +32,6 @@ checkpoint_location_target = f"{checkpoint_path}/dataset"
 dbutils.fs.rm(checkpoint_location_target, recurse = True)
 spark.sql(f"drop table if exists {database}.{target_table_train}")
 spark.sql(f"drop table if exists {database}.{target_table_test}")
-
-# COMMAND ----------
-
-
 
 # COMMAND ----------
 

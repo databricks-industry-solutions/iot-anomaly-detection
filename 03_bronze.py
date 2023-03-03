@@ -54,7 +54,7 @@ options = {
   "subscribe": topic,
   "topic": topic,
   "checkpointLocation": checkpoint_path,
-  "startingOffsets": "earliest"
+#  "startingOffsets": "earliest"
 }
 
 #Stream the Kafka records into a Dataframe
@@ -62,6 +62,7 @@ kafka_df = (
   spark.readStream
     .format("kafka")
     .options(**options)
+    .option("startingOffsets", "latest")
     .load()
 )
 

@@ -19,6 +19,7 @@
 # COMMAND ----------
 
 import dbldatagen as dg
+import dbldatagen.distributions as dist
 from pyspark.sql.types import IntegerType, FloatType, StringType, LongType
 
 states = [ 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA',
@@ -43,21 +44,17 @@ df_spec = (
   .withColumn(
     "device_model",
     StringType(),
-    values=['mx2000', 'xft-255', 'db-1000', 'db-2000', 'mlr-12.0'],
+    values=['mx2000', 'xft-255', 'db-1000', 'db-2000', 'mlr-120'],
     random=True
   )
   .withColumn("timestamp", LongType(), minValue=1577833200, maxValue=1673714337, random=True)
-  .withColumn("sensor_1", IntegerType(), minValue=-10, maxValue=100, random=True)
+  .withColumn("sensor_1", IntegerType(), minValue=-10, maxValue=100, random=True, distribution=dist.Gamma(40.0,9.0))
   .withColumn("sensor_2", IntegerType(), minValue=0, maxValue=10, random=True)
   .withColumn("sensor_3", FloatType(), minValue=0.0001, maxValue=1.0001, random=True)
   .withColumn("state", StringType(), values=states, random=True)
 )
                             
 df = df_spec.build()
-#df.write.saveAsTable(table_name)
-
-# COMMAND ----------
-
 display(df)
 
 # COMMAND ----------
@@ -109,15 +106,7 @@ options = {
     "checkpointLocation": checkpoint_path
 }
 
-
-# kafka_checkpoint_path = f"{checkpoint_path}/kafka/{topic}"
-# dbutils.fs.rm(kafka_checkpoint_path, recurse = True)
-
-# def delay(row):
-#     # Wait x seconds for each batch
-#     time.sleep(row_delay_seconds)
-#     pass
-
+#Write to Kafka
 (
   kafka_ready_df
     .write
@@ -125,85 +114,3 @@ options = {
     .options(**options)
     .save()
 )
-# ) \
-#   .trigger(once = True) \
-#   .start()
-
-# COMMAND ----------
-
-# DBTITLE 1,First Glance into our Generated Data
-sample_df = spark.sql(f"select * from {table_name} where id < 10")
-display(sample_df)
-
-# COMMAND ----------
-
-# DBTITLE 1,Writing into Kafka
-from pyspark.sql.functions import to_json, struct, col, cast
-from pyspark.sql.types import BinaryType
-import time
-
-# We first read from our generated data
-
-streaming_df = (
-  spark.readStream
-  .format("delta")
-  .schema(sample_df.schema)
-  .table(table_name)
-  .select(
-    col("id").cast(BinaryType()).alias("key"),
-    to_json(
-      struct(
-        [col(column) for column in sample_df.columns]
-      )
-    ).cast(BinaryType()).alias("value")
-  )
-)
-
-# COMMAND ----------
-
-import time
-
-# kafka config
-kafka_bootstrap_servers = "pkc-1wvvj.westeurope.azure.confluent.cloud:9092"
-security_protocol = "SASL_SSL"
-sasl_mechanism = "PLAIN"
-sasl_username = "ER4NIW5GR6FLOTMD"
-sasl_password = "TaeXQO2jSEbk6vhK32obQGF2O3WMoX9KrwL0zfaFBnKORLQSqVCKNPsaRe7IO0tT"
-topic = "iot_msg_topic"
-sasl_config = f'org.apache.kafka.common.security.plain.PlainLoginModule required username="{sasl_username}" password="{sasl_password}";'
-checkpoint_path = "/dbfs/tmp/checkpoints"
-
-options = {
-    "kafka.ssl.endpoint.identification.algorithm": "https",
-    "kafka.sasl.jaas.config": sasl_config,
-    "kafka.sasl.mechanism": sasl_mechanism,
-    "kafka.security.protocol" : security_protocol,
-    "kafka.bootstrap.servers": kafka_bootstrap_servers,
-    "group.id": 1,
-    "subscribe": topic,
-    "topic": topic,
-    "checkpointLocation": checkpoint_path
-}
-
-
-kafka_checkpoint_path = f"{checkpoint_path}/kafka/{topic}"
-dbutils.fs.rm(kafka_checkpoint_path, recurse = True)
-
-def delay(row):
-    # Wait x seconds for each batch
-    time.sleep(row_delay_seconds)
-    pass
-
-(
-  streaming_df
-    .writeStream
-    .foreachBatch(delay)
-    .format("kafka")
-    .options(**options)
-) \
-  .trigger(once = True) \
-  .start()
-
-# COMMAND ----------
-
-
