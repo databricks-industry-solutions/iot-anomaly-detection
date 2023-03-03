@@ -122,11 +122,6 @@ def train_gbt(max_depth, num_estimators):
   
   return pipeline, validation_metric
 
-
-
-# COMMAND ----------
-
-# DBTITLE 1,Hyperopt
 space = {
   'max_depth': hp.uniform('max_depth', 2, 15),
   'num_estimators': hp.uniform('num_estimators', 10, 50)
@@ -161,7 +156,7 @@ with mlflow.start_run() as run:
     fn = train_with_hyperopt_train_gbt,
     space = space,
     algo = algo,
-    max_evals = 10
+    max_evals = 3
   )
   
   gradient_final_model, final_gradient_val_log_loss = train_gbt(
@@ -185,10 +180,11 @@ from mlflow.tracking import MlflowClient
 
 client = MlflowClient()
 model_info = client.get_registered_model(model_name)
-latest_version = model_info.latest_versions[-1]
+latest_version = model_info.latest_versions[0]
 
 client.transition_model_version_stage(
   name = model_name,
   version = latest_version.version,
-  stage="Production"
+  stage="Production",
+  archive_existing_versions=True
 )
