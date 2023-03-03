@@ -283,22 +283,6 @@ with mlflow.start_run() as run:
 
 # COMMAND ----------
 
-#load the experiments from the latest training
-experiment_Df = spark.read.format("mlflow-experiment").load(experiment_id)
-
-
-#filter the best run
-best_run = (
-  experiment_Df
-    .filter(
-      experiment_Df.tags["mlflow.rootRunId"]==run_id)
-    .orderBy(experiment_Df.metrics["log_loss_score"].desc())
-    .limit(1)
-    .first()['run_id']
-)
-
-# COMMAND ----------
-
 from mlflow.tracking import MlflowClient
 
 client = MlflowClient()
