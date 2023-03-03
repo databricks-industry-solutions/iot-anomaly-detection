@@ -3,16 +3,14 @@
 # MAGIC 
 # MAGIC ## IoT Data Generation
 # MAGIC 
+# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/02_generate_iot_data.jpg">
+# MAGIC 
 # MAGIC In this notebook, we use `dbldatagen` to generate fictitious data and push into a Kafka topic.
 
 # COMMAND ----------
 
-dbutils.fs.rm("/dbfs/tmp/checkpoints", True)
-
-# COMMAND ----------
-
-dbutils.widgets.text("row_delay_seconds", "0.1")
-row_delay_seconds = float(getArgument("row_delay_seconds"))
+# MAGIC %md
+# MAGIC Generate the Data
 
 # COMMAND ----------
 
@@ -56,7 +54,80 @@ df_spec = (
 )
                             
 df = df_spec.build()
-df.write.saveAsTable(table_name)
+#df.write.saveAsTable(table_name)
+
+# COMMAND ----------
+
+display(df)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Write to Kafka
+
+# COMMAND ----------
+
+from pyspark.sql.functions import to_json, struct, col, cast
+from pyspark.sql.types import BinaryType
+import time
+
+#Get the data ready for Kafka
+kafka_ready_df = (
+                  df.select(
+                    col("id").cast(BinaryType()).alias("key"),
+                    to_json(
+                      struct(
+                        [col(column) for column in df.columns]
+                      )
+                    ).cast(BinaryType()).alias("value")
+                  )
+)
+
+display(kafka_ready_df)
+
+# COMMAND ----------
+
+#Kafka config
+kafka_bootstrap_servers = "pkc-1wvvj.westeurope.azure.confluent.cloud:9092"
+security_protocol = "SASL_SSL"
+sasl_mechanism = "PLAIN"
+sasl_username = "ER4NIW5GR6FLOTMD"
+sasl_password = "TaeXQO2jSEbk6vhK32obQGF2O3WMoX9KrwL0zfaFBnKORLQSqVCKNPsaRe7IO0tT"
+topic = "iot_msg_topic"
+sasl_config = f'org.apache.kafka.common.security.plain.PlainLoginModule required username="{sasl_username}" password="{sasl_password}";'
+checkpoint_path = "/dbfs/tmp/checkpoints"
+
+options = {
+    "kafka.ssl.endpoint.identification.algorithm": "https",
+    "kafka.sasl.jaas.config": sasl_config,
+    "kafka.sasl.mechanism": sasl_mechanism,
+    "kafka.security.protocol" : security_protocol,
+    "kafka.bootstrap.servers": kafka_bootstrap_servers,
+    "group.id": 1,
+    "subscribe": topic,
+    "topic": topic,
+    "checkpointLocation": checkpoint_path
+}
+
+
+# kafka_checkpoint_path = f"{checkpoint_path}/kafka/{topic}"
+# dbutils.fs.rm(kafka_checkpoint_path, recurse = True)
+
+# def delay(row):
+#     # Wait x seconds for each batch
+#     time.sleep(row_delay_seconds)
+#     pass
+
+(
+  kafka_ready_df
+    .write
+    .format("kafka")
+    .options(**options)
+    .save()
+)
+# ) \
+#   .trigger(once = True) \
+#   .start()
 
 # COMMAND ----------
 
