@@ -56,3 +56,7 @@ gold_df_pred \
   .option("mergeSchema", "true") \
   .trigger(once = True) \
   .table(f"{database}.{target_table}")
+
+# COMMAND ----------
+
+
