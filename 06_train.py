@@ -180,20 +180,14 @@ with mlflow.start_run() as run:
 
 # COMMAND ----------
 
-import time
-time.sleep(300) # wait up to 300 seconds for the new model version to be created 
-
-# COMMAND ----------
-
 # DBTITLE 1,Transition the best model to Production
 from mlflow.tracking import MlflowClient
 
 client = MlflowClient()
-model_info = client.get_registered_model(model_name)
-latest_version = model_info.latest_versions[-1]
-
+latest_version = client.get_latest_versions(model_name)[0]
 client.transition_model_version_stage(
   name = model_name,
   version = latest_version.version,
-  stage="Production"
+  stage="Production",
+  archive_existing_versions=True
 )
