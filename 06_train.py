@@ -180,6 +180,11 @@ with mlflow.start_run() as run:
 
 # COMMAND ----------
 
+import time
+time.sleep(300) # wait up to 300 seconds for the new model version to be created 
+
+# COMMAND ----------
+
 # DBTITLE 1,Transition the best model to Production
 from mlflow.tracking import MlflowClient
 
