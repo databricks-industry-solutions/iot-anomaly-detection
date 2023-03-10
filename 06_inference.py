@@ -3,9 +3,14 @@
 # MAGIC 
 # MAGIC ## Predict Anomalous Events
 # MAGIC 
-# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/06_inference.jpg" width="40%">
+# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/06_inference.jpg" width="20%">
 # MAGIC 
 # MAGIC This notebook will use the trained model to identify anomalous events.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Setup
 
 # COMMAND ----------
 
@@ -27,50 +32,68 @@ spark.sql(f"drop table if exists {database}.{target_table}")
 
 # COMMAND ----------
 
-import mlflow
-from mlflow.tracking import MlflowClient
-
-client = MlflowClient()
-model_info = client.get_registered_model(model_name)
-production_version = [
-  version for version
-  in model_info.latest_versions
-  if version.current_stage == 'Production'
-][0]
-print(f"Production version: {production_version.version}")
-
-#Load model artifact
-pipeline_model = mlflow.spark.load_model(production_version.source)
+# MAGIC %md
+# MAGIC Read Silver Data
 
 # COMMAND ----------
 
-from pyspark.sql import functions as F
-
-gold_df = (
+#Read Silver Data
+silver_df = (
   spark.readStream
     .format("delta")
     .table(f"{database}.{source_table}")
 )
 
-gold_df_pred = pipeline_model.transform(gold_df)
+# COMMAND ----------
 
-#Uncomment to display gold_df_pred
-#display(gold_df_pred)
+# MAGIC %md Create a function to featurize and make the prediction
 
 # COMMAND ----------
 
-display(gold_df_pred)
+import pyspark.pandas as ps
+import mlflow
+
+#Feature and predict function
+def predict_anomalies(data, epoch_id):
+  
+  #Conver to Pandas for Spark
+  data_pdf = data.to_koalas()
+
+  #OHE
+  data_pdf = ps.get_dummies(data_pdf, 
+                        columns=['device_model', 'state'],dtype = 'int64')
+
+  #Convert to Spark
+  data_sdf = data_pdf.to_spark() 
+  
+  # Load the model
+  model = f'models:/{model_name}/production'
+  model_fct = mlflow.pyfunc.spark_udf(spark, model_uri=model)
+
+  # Make the prediction
+  prediction_df = data_sdf.withColumn('prediction', model_fct(*data_sdf.drop('datetime', 'device_id').columns))
+  
+  # Clean up the output
+  clean_pred_df = (prediction_df.select('device_id', 'datetime', 'sensor_1', 'sensor_2', 'sensor_3', 'prediction'))
+  
+  # Write the output to a Gold Delta table
+  clean_pred_df.write.format('delta').mode('append').saveAsTable(f"{database}.{target_table}")
+   
+#  return data_sdf
 
 # COMMAND ----------
 
-(gold_df_pred
-  .select("device_id", "datetime", "prediction")
-  .writeStream
-  .format("delta")
-  .outputMode("append")
-  .option("checkpointLocation", f"{checkpoint_location_target}")
-  .trigger(once = True)
-  .table(f"{database}.{target_table}")
+# MAGIC %md Stream the predicted results using the function
+
+# COMMAND ----------
+
+# Stream predicted outputs
+(
+  silver_df
+    .writeStream
+    .foreachBatch(predict_anomalies)
+    .trigger(once = True)
+    .start()
 )
 
 # COMMAND ----------

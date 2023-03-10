@@ -202,7 +202,7 @@ from pyspark.sql.functions import *
 
 experiment_Df = spark.read.format("mlflow-experiment").load(experiment_id)
 
-#Find the best run
+#Find the best run based on F1 score
 best_run = (
   experiment_Df
     .filter(
@@ -225,6 +225,7 @@ model_details = mlflow.register_model(model_uri, model_name)
 
 # COMMAND ----------
 
+#Transition the model to "Production" stage in the registry
 client.transition_model_version_stage(
   name = model_name,
   version = model_details.version,
@@ -233,9 +234,13 @@ client.transition_model_version_stage(
 
 # COMMAND ----------
 
-#Run if a previous model was already deployed
-client.transition_model_version_stage(
-  name = model_name,
-  version = int(model_details.version) - 1,
-  stage="None"
-)
+#Run if a previous model was already deployed to transition the previous model to "None" stage in the registry
+# client.transition_model_version_stage(
+#   name = model_name,
+#   version = int(model_details.version) - 1,
+#   stage="None"
+# )
+
+# COMMAND ----------
+
+
