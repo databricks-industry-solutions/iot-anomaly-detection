@@ -3,7 +3,7 @@
 # MAGIC 
 # MAGIC ## Predict Anomalous Events
 # MAGIC 
-# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/06_inference.jpg" width="20%">
+# MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/raw/main/resource/images/06_inference.jpg" width="20%">
 # MAGIC 
 # MAGIC This notebook will use the trained model to identify anomalous events.
 

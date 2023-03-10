@@ -3,7 +3,8 @@
 # MAGIC 
 # MAGIC ## Stream the Data from Kafka into a Bronze Delta Table
 # MAGIC 
-# MAGIC <img src="https://mcg1stanstor00.blob.core.windows.net/images/iot-anomaly-detection/raw/main/resource/images/03_bronze.jpg" width="30%">
+# MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/raw/main/resource/images/03_bronze.jpg" width="30%">
+# MAGIC 
 # MAGIC 
 # MAGIC This notebook will read the IoT data from Kafka and put it into a Delta Lake table called "Bronze".
 
