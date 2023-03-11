@@ -61,7 +61,7 @@ def predict_anomalies(data, epoch_id):
   clean_pred_df = (prediction_df.select('device_id', 'datetime', 'sensor_1', 'sensor_2', 'sensor_3', 'prediction'))
   
   # Write the output to a Gold Delta table
-  clean_pred_df.write.format('delta').mode('append').saveAsTable(f"{database}.{target_table}")
+  clean_pred_df.write.format('delta').mode('append').option("mergeSchema", "true").saveAsTable(f"{database}.{target_table}")
    
 #  return data_sdf
 
