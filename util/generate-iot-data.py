@@ -14,7 +14,7 @@
 
 # COMMAND ----------
 
-!pip install dbldatagen -q
+# MAGIC %run ./notebook-config
 
 # COMMAND ----------
 
@@ -83,16 +83,6 @@ kafka_ready_df = (
 display(kafka_ready_df)
 
 # COMMAND ----------
-
-#Kafka config
-kafka_bootstrap_servers = "pkc-1wvvj.westeurope.azure.confluent.cloud:9092"
-security_protocol = "SASL_SSL"
-sasl_mechanism = "PLAIN"
-sasl_username = "ER4NIW5GR6FLOTMD"
-sasl_password = "TaeXQO2jSEbk6vhK32obQGF2O3WMoX9KrwL0zfaFBnKORLQSqVCKNPsaRe7IO0tT"
-topic = "iot_msg_topic"
-sasl_config = f'org.apache.kafka.common.security.plain.PlainLoginModule required username="{sasl_username}" password="{sasl_password}";'
-checkpoint_path = "/dbfs/tmp/checkpoints"
 
 options = {
     "kafka.ssl.endpoint.identification.algorithm": "https",

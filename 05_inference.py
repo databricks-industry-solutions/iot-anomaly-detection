@@ -1,4 +1,8 @@
 # Databricks notebook source
+# MAGIC %md You may find this series of notebooks at https://github.com/databricks-industry-solutions/iot-anomaly-detection. 
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ## Predict Anomalous Events
@@ -9,26 +13,19 @@
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Setup
+# DBTITLE 1,Define configs that are consistent throughout the accelerator
+# MAGIC %run ./util/notebook-config
 
 # COMMAND ----------
 
-dbutils.widgets.text("database", "rvp_iot_sa")
+# DBTITLE 1,Define config for this notebook 
 dbutils.widgets.text("source_table", "silver")
 dbutils.widgets.text("target_table", "gold")
-dbutils.widgets.text("model_name", "iot_anomaly_detection_xgboost")
-
-database = getArgument("database")
 source_table = getArgument("source_table")
 target_table = getArgument("target_table")
-model_name = getArgument("model_name")
 
 #Cleanup from previous run(s)
-checkpoint_path = "/dbfs/tmp/checkpoints"
 checkpoint_location_target = f"{checkpoint_path}/{target_table}"
-dbutils.fs.rm(checkpoint_location_target, recurse = True)
-spark.sql(f"drop table if exists {database}.{target_table}")
 
 # COMMAND ----------
 

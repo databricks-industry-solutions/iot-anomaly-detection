@@ -1,4 +1,8 @@
 # Databricks notebook source
+# MAGIC %md You may find this series of notebooks at https://github.com/databricks-industry-solutions/iot-anomaly-detection. 
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ## Build Test/Train Datasets and Train Model
@@ -9,34 +13,22 @@
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Setup
+# DBTITLE 1,Define configs that are consistent throughout the accelerator
+# MAGIC %run ./util/notebook-config
 
 # COMMAND ----------
 
+# DBTITLE 1,Define config for this notebook 
 dbutils.widgets.text("source_table", "silver")
 dbutils.widgets.text("target_table", "feaures")
-dbutils.widgets.text("database", "rvp_iot_sa")
-dbutils.widgets.text("model_name", "iot_anomaly_detection_xgboost")
-checkpoint_path = "/dbfs/tmp/checkpoints"
 
 source_table = getArgument("source_table")
 target_table = getArgument("target_table")
-database = getArgument("database")
-model_name = getArgument("model_name")
 checkpoint_location_target = f"{checkpoint_path}/dataset"
 
-#Cleanup Previous Run(s)
-dbutils.fs.rm(checkpoint_location_target, recurse = True)
-spark.sql(f"drop table if exists {database}.{target_table}")
-
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Read and label the Silver data
-
-# COMMAND ----------
-
+# DBTITLE 1,Read and label the Silver data
 from pyspark.sql import functions as F
 
 #Read the Silver Data
@@ -61,11 +53,6 @@ display(labeled_df)
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Create features and store to feature table
-
-# COMMAND ----------
-
 import pyspark.pandas as ps
 
 def compute_features(data):
@@ -81,9 +68,6 @@ def compute_features(data):
   data_sdf = data_pdf.to_spark() 
     
   return data_sdf
-
-# COMMAND ----------
-
 features_df = (
   compute_features(labeled_df)
 )
@@ -97,11 +81,7 @@ features_df.write.saveAsTable(f"{database}.{target_table}", mode = "overwrite")
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Create Training and Test Datasets
-
-# COMMAND ----------
-
+# DBTITLE 1,Create Training and Test Datasets
 import pandas as pd
 import numpy as np
 import mlflow
@@ -125,11 +105,7 @@ test_y = test[colLabel]
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Initial Training Run
-
-# COMMAND ----------
-
+# DBTITLE 1,Initial Training Run
 from sklearn.metrics import *
 mlflow.spark.autolog()
 mlflow.sklearn.autolog()
@@ -149,11 +125,7 @@ with mlflow.start_run(run_name="skl") as run:
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Hyper-Parameter Tuning with Hyperopt
-
-# COMMAND ----------
-
+# DBTITLE 1,Hyper-Parameter Tuning with Hyperopt
 from hyperopt import fmin, tpe, hp, SparkTrials, Trials, STATUS_OK
 from hyperopt.pyll import scope
 import numpy as np
@@ -189,15 +161,15 @@ with mlflow.start_run(run_name='sklearn_hyperopt') as run:
 run_id = run.info.run_uuid
 experiment_id = run.info.experiment_id
 
-#You can look at the experiment logging including parameters, metrics, recall curves, etc. by clicking the "experiment" link below or the MLflow Experiments icon in the right navigation pane
-
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Find and register the best model
+# MAGIC 
+# MAGIC You can look at the experiment logging including parameters, metrics, recall curves, etc. by clicking the "experiment" link above or the MLflow Experiments icon in the right navigation pane
 
 # COMMAND ----------
 
+# DBTITLE 1,Find and register the best model
 from pyspark.sql.functions import *
 
 experiment_Df = spark.read.format("mlflow-experiment").load(experiment_id)
@@ -225,22 +197,10 @@ model_details = mlflow.register_model(model_uri, model_name)
 
 # COMMAND ----------
 
-#Transition the model to "Production" stage in the registry
+# DBTITLE 1,Transition the model to "Production" stage in the registry
 client.transition_model_version_stage(
   name = model_name,
   version = model_details.version,
-  stage="Production"
+  stage="Production",
+  archive_existing_versions=True
 )
-
-# COMMAND ----------
-
-#Run if a previous model was already deployed to transition the previous model to "None" stage in the registry
-# client.transition_model_version_stage(
-#   name = model_name,
-#   version = int(model_details.version) - 1,
-#   stage="None"
-# )
-
-# COMMAND ----------
-
-

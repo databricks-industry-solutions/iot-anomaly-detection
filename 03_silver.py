@@ -1,4 +1,8 @@
 # Databricks notebook source
+# MAGIC %md You may find this series of notebooks at https://github.com/databricks-industry-solutions/iot-anomaly-detection. 
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC 
 # MAGIC ## Parse/Transform the data from Bronze and load to Silver
@@ -9,24 +13,18 @@
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Setup
+# DBTITLE 1,Define configs that are consistent throughout the accelerator
+# MAGIC %run ./util/notebook-config
 
 # COMMAND ----------
 
+# DBTITLE 1,Define config for this notebook 
 dbutils.widgets.text("source_table", "bronze")
 dbutils.widgets.text("target_table", "silver")
-dbutils.widgets.text("database", "rvp_iot_sa")
-checkpoint_path = "/dbfs/tmp/checkpoints"
 
 source_table = getArgument("source_table")
 target_table = getArgument("target_table")
-database = getArgument("database")
 checkpoint_location_target = f"{checkpoint_path}/{target_table}"
-
-#Cleanup Previous Run
-dbutils.fs.rm(checkpoint_location_target, recurse = True)
-spark.sql(f"drop table if exists {database}.{target_table}")
 
 # COMMAND ----------
 
@@ -89,7 +87,7 @@ transformed_df = (
     .format("delta")
     .outputMode("append")
     .option("checkpointLocation", checkpoint_location_target)
-    .trigger(once = True) #Comment to continuously stream
+    .trigger(once = True) # or use .trigger(processingTime='30 seconds') to continuously stream and feel free to modify the processing window
     .table(f"{database}.{target_table}")
 )
 
