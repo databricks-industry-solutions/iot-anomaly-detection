@@ -100,7 +100,7 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"05_create_train_test_sets"
+                    "notebook_path": f"05_train"
                 },
                 "task_key": "iot_ad_05",
                 "depends_on": [
@@ -112,24 +112,12 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"06_train"
+                    "notebook_path": f"06_inference"
                 },
                 "task_key": "iot_ad_06",
                 "depends_on": [
                     {
                         "task_key": "iot_ad_05"
-                    }
-                ]
-            },
-            {
-                "job_cluster_key": "iot_ad_cluster",
-                "notebook_task": {
-                    "notebook_path": f"07_inference"
-                },
-                "task_key": "iot_ad_07",
-                "depends_on": [
-                    {
-                        "task_key": "iot_ad_06"
                     }
                 ]
             }
