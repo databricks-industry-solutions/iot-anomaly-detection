@@ -18,7 +18,6 @@ checkpoint_path = "/dbfs/tmp/iot-anomaly-detection/checkpoints"
 # DBTITLE 1,Database settings
 database = "rvp_iot_sa"
 
-# spark.sql(f"drop database if exists {database} cascade") # uncomment if you want to reinitialize the accelerator database
 spark.sql(f"create database if not exists {database}")
 
 # COMMAND ----------

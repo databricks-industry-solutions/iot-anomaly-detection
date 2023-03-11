@@ -54,7 +54,7 @@ display(labeled_df)
 
 # DBTITLE 1,Save Feature to Delta Table
 features_df = labeled_df # here you can do more featurization based on domain knowledge
-features_df.write.saveAsTable(f"{database}.{target_table}", mode = "overwrite")
+features_df.write.option("mergeSchema", "true").saveAsTable(f"{database}.{target_table}", mode = "overwrite")
 
 # COMMAND ----------
 

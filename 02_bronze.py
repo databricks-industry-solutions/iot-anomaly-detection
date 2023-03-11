@@ -27,7 +27,7 @@ checkpoint_location_target = f"{checkpoint_path}/{target_table}"
 
 # COMMAND ----------
 
-# MAGIC %md
+# spark.sql(f"drop database if exists {database} cascade") # uncomment if you want to reinitialize the accelerator database
 
 # COMMAND ----------
 
