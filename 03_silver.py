@@ -88,6 +88,7 @@ transformed_df = (
     .option("checkpointLocation", checkpoint_location_target)
     .trigger(once = True) # or use .trigger(processingTime='30 seconds') to continuously stream and feel free to modify the processing window
     .table(f"{database}.{target_table}")
+    .awaitTermination()
 )
 
 # COMMAND ----------
