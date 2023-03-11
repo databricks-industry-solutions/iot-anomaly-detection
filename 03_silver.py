@@ -21,7 +21,6 @@
 # DBTITLE 1,Define config for this notebook 
 dbutils.widgets.text("source_table", "bronze")
 dbutils.widgets.text("target_table", "silver")
-
 source_table = getArgument("source_table")
 target_table = getArgument("target_table")
 checkpoint_location_target = f"{checkpoint_path}/{target_table}"
