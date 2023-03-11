@@ -52,30 +52,8 @@ display(labeled_df)
 
 # COMMAND ----------
 
-import pyspark.pandas as ps
-
-def compute_features(data):
-  
-  #Conver to Pandas for Spark
-  data_pdf = data.to_koalas()
-
-  #OHE
-  data_pdf = ps.get_dummies(data_pdf, 
-                        columns=['device_model', 'state'],dtype = 'int64')
-
-  #Convert to Spark
-  data_sdf = data_pdf.to_spark() 
-    
-  return data_sdf
-features_df = (
-  compute_features(labeled_df)
-)
-
-display(features_df)
-
-# COMMAND ----------
-
-#Save Feature to Delta Table
+# DBTITLE 1,Save Feature to Delta Table
+features_df = labeled_df # here you can do more featurization based on domain knowledge
 features_df.write.saveAsTable(f"{database}.{target_table}", mode = "overwrite")
 
 # COMMAND ----------
@@ -104,6 +82,21 @@ test_y = test[colLabel]
 
 # COMMAND ----------
 
+# DBTITLE 1,Design our pipeline
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.pipeline import Pipeline
+
+def make_pipeline(max_depth, max_leaf_nodes):
+  enc = OneHotEncoder(handle_unknown='ignore')
+  model = DecisionTreeClassifier(max_depth=max_depth, max_leaf_nodes=max_leaf_nodes)
+  pipeline = Pipeline(
+    steps=[("preprocessor", enc), ("classifier", model)]
+  )
+  
+  return pipeline
+
+# COMMAND ----------
+
 # DBTITLE 1,Initial Training Run
 from sklearn.metrics import *
 mlflow.spark.autolog()
@@ -115,10 +108,9 @@ max_leaf_nodes = 32
 
 with mlflow.start_run(run_name="skl") as run:
     run_id = run.info.run_uuid
-    
-    model = DecisionTreeClassifier(max_depth=max_depth, max_leaf_nodes=max_leaf_nodes)
-    model.fit(train_x, train_y)
-    predictions = model.predict(test_x)
+    pipeline = make_pipeline(max_depth, max_leaf_nodes)
+    pipeline.fit(train_x, train_y)
+    predictions = pipeline.predict(test_x)
     
 #You can look at the experiment logging including parameters, metrics, recall curves, etc. by clicking the "experiment" link below or the MLflow Experiments icon in the right navigation pane
 
@@ -131,7 +123,6 @@ import numpy as np
 
 search_space = {
     'max_depth': hp.choice('max_depth', range(1,20)),
-    'max_features': hp.choice('max_features', range(0,46)),
     'max_leaf_nodes': hp.choice('max_leaf_nodes', range(4,128))
 }
 
@@ -141,9 +132,9 @@ def train_model(params):
   with mlflow.start_run(nested=True):
    
    # Fit, train, and score the model
-    model = DecisionTreeClassifier(**params)
-    model.fit(train_x, train_y)
-    predictions = model.predict(test_x)
+    pipeline = make_pipeline(**params)
+    pipeline.fit(train_x, train_y)
+    predictions = pipeline.predict(test_x)
 
     return {'status': STATUS_OK, 'loss': f1_score(test_y, predictions)} #, 'params': model.get_params()}
   
@@ -203,3 +194,7 @@ client.transition_model_version_stage(
   stage="Production",
   archive_existing_versions=True
 )
+
+# COMMAND ----------
+
+

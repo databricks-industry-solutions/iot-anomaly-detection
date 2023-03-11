@@ -50,23 +50,12 @@ import mlflow
 
 #Feature and predict function
 def predict_anomalies(data, epoch_id):
-  
-  #Conver to Pandas for Spark
-  data_pdf = data.to_koalas()
-
-  #OHE
-  data_pdf = ps.get_dummies(data_pdf, 
-                        columns=['device_model', 'state'],dtype = 'int64')
-
-  #Convert to Spark
-  data_sdf = data_pdf.to_spark() 
-  
   # Load the model
   model = f'models:/{model_name}/production'
   model_fct = mlflow.pyfunc.spark_udf(spark, model_uri=model)
 
   # Make the prediction
-  prediction_df = data_sdf.withColumn('prediction', model_fct(*data_sdf.drop('datetime', 'device_id').columns))
+  prediction_df = data.withColumn('prediction', model_fct(*data.drop('datetime', 'device_id').columns))
   
   # Clean up the output
   clean_pred_df = (prediction_df.select('device_id', 'datetime', 'sensor_1', 'sensor_2', 'sensor_3', 'prediction'))
@@ -89,8 +78,13 @@ def predict_anomalies(data, epoch_id):
     .foreachBatch(predict_anomalies)
     .trigger(once = True)
     .start()
+    .awaitTermination()
 )
 
 # COMMAND ----------
 
 display(spark.table(f"{database}.{target_table}"))
+
+# COMMAND ----------
+
+
