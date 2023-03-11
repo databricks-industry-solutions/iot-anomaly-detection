@@ -63,7 +63,7 @@ kafka_df = (
   spark.readStream
     .format("kafka")
     .options(**options)
-#    .option("startingOffsets", "earliest")
+    .option("startingOffsets", "earliest")
     .load()
 )
 
