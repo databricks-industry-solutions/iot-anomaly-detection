@@ -24,7 +24,7 @@ spark.sql(f"create database if not exists {database}")
 
 # DBTITLE 1,mlflow settings
 import mlflow
-model_name = "iot_anomaly_detection_xgboost"
+model_name = "iot_anomaly_detection"
 username = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
 mlflow.set_experiment('/Users/{}/iot_anomaly_detection'.format(username))
 
