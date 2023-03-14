@@ -1,9 +1,22 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC 
-# MAGIC ## IoT Data Generation
+# MAGIC # IoT Data Generation
 # MAGIC 
 # MAGIC In this notebook, we use `dbldatagen` to generate fictitious data and push into a Kafka topic.
+# MAGIC 
+# MAGIC We first generate data using [Databricks Labs Data Generator](https://databrickslabs.github.io/dbldatagen/public_docs/index.html) (`dbldatagen`). The data generator provides an easy way to generate large volumes of synthetic data within a Databricks notebook. The data that is generated is defined by a schema. The output is a PySpark dataframe.
+# MAGIC 
+# MAGIC The generated data consists of the following columns: 
+# MAGIC - `device_id`
+# MAGIC - `device_model`
+# MAGIC - `timestamp`
+# MAGIC - `sensor_1`
+# MAGIC - `sensor_2`
+# MAGIC - `sensor_3`
+# MAGIC - `us_state`
+# MAGIC 
+# MAGIC where `sensor 1..3` are sensor values. 
 
 # COMMAND ----------
 
@@ -66,7 +79,14 @@ display(sample_df)
 
 # COMMAND ----------
 
-# DBTITLE 1,Writing into Kafka
+# MAGIC %md
+# MAGIC ## Writing into Kafka
+# MAGIC The Producer sends the dataframe to a Confluent Kafka broker as follows. 
+# MAGIC 
+# MAGIC You will need to replace the `kafka_bootstrap_servers`, `sasl_username` and `sasl_password` variables to your on Kafka broker.
+
+# COMMAND ----------
+
 from pyspark.sql.functions import to_json, struct, col, cast
 from pyspark.sql.types import BinaryType
 import time
