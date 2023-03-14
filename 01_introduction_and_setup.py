@@ -1,6 +1,6 @@
 # Databricks notebook source
 # MAGIC %md 
-# MAGIC # Real-time monitoring and anomaly detection on streaming IoT pipelines in Manufacturing 
+# MAGIC # Real-time Monitoring and Anomaly Detection on Streaming IoT pipelines in Manufacturing 
 # MAGIC 
 # MAGIC Manufacturers today face challenges working with IoT data due to high investment costs, security, and connectivity outages. These challenges lead to more time and money being spent on trying to make things work rather than innovating on data products that drive business value.  The Databricks Lakehouse platform reduces these challenges with a reliable, secure platform capable of ingesting and transforming IoT data at massive scale, building analytics and AI assets on that data, and serving those assets where they are needed
 # MAGIC 
