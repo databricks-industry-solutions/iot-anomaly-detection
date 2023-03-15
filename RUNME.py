@@ -32,6 +32,39 @@ from solacc.companion import NotebookSolutionCompanion
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Before setting up the rest of the accelerator, we need set up a few credentials in order to connect to Kafka. [TODO-How to connect to Kafka]
+# MAGIC 
+# MAGIC Copy the block of code below, replace the name the secret scope and fill in the credentials and execute the block. After executing the code, The accelerator notebook will be able to access the credentials it needs.
+# MAGIC 
+# MAGIC 
+# MAGIC ```
+# MAGIC client = NotebookSolutionCompanion().client
+# MAGIC try:
+# MAGIC   client.execute_post_json(f"{client.endpoint}/api/2.0/secrets/scopes/create", {"scope": "solution-accelerator-cicd"})
+# MAGIC except:
+# MAGIC   pass
+# MAGIC client.execute_post_json(f"{client.endpoint}/api/2.0/secrets/put", {
+# MAGIC   "scope": "solution-accelerator-cicd",
+# MAGIC   "key": "iot-anomaly-kafka-bootstrap-server",
+# MAGIC   "string_value": "____"
+# MAGIC })
+# MAGIC 
+# MAGIC client.execute_post_json(f"{client.endpoint}/api/2.0/secrets/put", {
+# MAGIC   "scope": "solution-accelerator-cicd",
+# MAGIC   "key": "iot-anomaly-sasl-username",
+# MAGIC   "string_value": "____"
+# MAGIC })
+# MAGIC 
+# MAGIC client.execute_post_json(f"{client.endpoint}/api/2.0/secrets/put", {
+# MAGIC   "scope": "solution-accelerator-cicd",
+# MAGIC   "key": "iot-anomaly-sasl-password",
+# MAGIC   "string_value": "____"
+# MAGIC })
+# MAGIC ```
+
+# COMMAND ----------
+
 spark.sql(f"CREATE DATABASE IF NOT EXISTS databricks_solacc LOCATION '/databricks_solacc/'")
 spark.sql(f"CREATE TABLE IF NOT EXISTS databricks_solacc.dbsql (path STRING, id STRING, solacc STRING)")
 dbsql_config_table = "databricks_solacc.dbsql"
@@ -57,7 +90,7 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"02_generate_iot_data"
+                    "notebook_path": f"02_bronze"
                 },
                 "task_key": "iot_ad_02",
                 "depends_on": [
@@ -70,13 +103,18 @@ job_json = {
                         "maven": {
                             "coordinates": "org.apache.kafka:kafka-clients:3.4.0"
                         }
+                    },
+                    {
+                      "pypi": {
+                          "package": "dbldatagen==0.3.2"
+                      }
                     }
                 ]
             },
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"03_bronze"
+                    "notebook_path": f"03_silver"
                 },
                 "task_key": "iot_ad_03",
                 "depends_on": [
@@ -88,7 +126,7 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"04_silver"
+                    "notebook_path": f"04_train"
                 },
                 "task_key": "iot_ad_04",
                 "depends_on": [
@@ -100,36 +138,12 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"05_create_train_test_sets"
+                    "notebook_path": f"05_inference"
                 },
                 "task_key": "iot_ad_05",
                 "depends_on": [
                     {
                         "task_key": "iot_ad_04"
-                    }
-                ]
-            },
-            {
-                "job_cluster_key": "iot_ad_cluster",
-                "notebook_task": {
-                    "notebook_path": f"06_train"
-                },
-                "task_key": "iot_ad_06",
-                "depends_on": [
-                    {
-                        "task_key": "iot_ad_05"
-                    }
-                ]
-            },
-            {
-                "job_cluster_key": "iot_ad_cluster",
-                "notebook_task": {
-                    "notebook_path": f"07_inference"
-                },
-                "task_key": "iot_ad_07",
-                "depends_on": [
-                    {
-                        "task_key": "iot_ad_06"
                     }
                 ]
             }
