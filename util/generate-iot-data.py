@@ -6,6 +6,20 @@
 # MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/raw/main/resource/images/02_generate_iot_data.jpg">
 # MAGIC 
 # MAGIC In this notebook, we use `dbldatagen` to generate fictitious data and push into a Kafka topic.
+# MAGIC 
+# MAGIC 
+# MAGIC We first generate data using [Databricks Labs Data Generator](https://databrickslabs.github.io/dbldatagen/public_docs/index.html) (`dbldatagen`). The data generator provides an easy way to generate large volumes of synthetic data within a Databricks notebook. The data that is generated is defined by a schema. The output is a PySpark dataframe.
+# MAGIC 
+# MAGIC The generated data consists of the following columns: 
+# MAGIC - `device_id`
+# MAGIC - `device_model`
+# MAGIC - `timestamp`
+# MAGIC - `sensor_1`
+# MAGIC - `sensor_2`
+# MAGIC - `sensor_3`
+# MAGIC - `us_state`
+# MAGIC 
+# MAGIC where `sensor 1..3` are sensor values.
 
 # COMMAND ----------
 
@@ -60,7 +74,10 @@ display(df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Write to Kafka
+# MAGIC ## Writing into Kafka
+# MAGIC The Producer sends the dataframe to a Confluent Kafka broker as follows. 
+# MAGIC 
+# MAGIC You will need to replace the `kafka_bootstrap_servers`, `sasl_username` and `sasl_password` variables to your on Kafka broker.
 
 # COMMAND ----------
 
@@ -96,7 +113,7 @@ options = {
     "checkpointLocation": checkpoint_path
 }
 
-#Write to Kafka
+# Write to Kafka
 (
   kafka_ready_df
     .write
