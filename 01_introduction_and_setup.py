@@ -13,7 +13,6 @@
 # MAGIC 
 # MAGIC In the next notebook, we will first generate some IoT data and write it to a Kafka topic
 
-
 # COMMAND ----------
 
 
