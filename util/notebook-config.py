@@ -12,12 +12,14 @@ sasl_config = f'org.apache.kafka.common.security.plain.PlainLoginModule required
 
 # DBTITLE 1,Streaming checkpoint location
 checkpoint_path = "/dbfs/tmp/iot-anomaly-detection/checkpoints"
+dbutils.fs.rm(checkpoint_path, True) # comment this out if you want to run this accelerator several times and continue accumulating data in the same tables
 
 # COMMAND ----------
 
 # DBTITLE 1,Database settings
 database = "rvp_iot_sa"
 
+spark.sql(f"drop database if exists {database} cascade") # comment this out if you want to run this accelerator several times and continue accumulating data in the same tables
 spark.sql(f"create database if not exists {database}")
 
 # COMMAND ----------
