@@ -164,7 +164,7 @@ with mlflow.start_run() as run:
     int(best_params['num_estimators'])
   )
   
-  mlflow.spark.log_model(
+  model_info = mlflow.spark.log_model(
     gradient_final_model,
     "model",
     registered_model_name = model_name
@@ -175,12 +175,16 @@ with mlflow.start_run() as run:
 
 # COMMAND ----------
 
+client.search_registered_models(filter_string = f"model_name == {model_name}", order_by = ["version des"])
+
+# COMMAND ----------
+
 # DBTITLE 1,Transition the best model to Production
 from mlflow.tracking import MlflowClient
 
 client = MlflowClient()
 model_info = client.get_registered_model(model_name)
-latest_version = model_info.latest_versions[0]
+latest_version = max([info.version for info in model_info.latest_versions])
 
 client.transition_model_version_stage(
   name = model_name,
@@ -188,3 +192,11 @@ client.transition_model_version_stage(
   stage="Production",
   archive_existing_versions=True
 )
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+
