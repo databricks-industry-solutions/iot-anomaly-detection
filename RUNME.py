@@ -33,9 +33,9 @@ from solacc.companion import NotebookSolutionCompanion
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Before setting up the rest of the accelerator, we need set up a few credentials in order to connect to Kafka. [TODO-How to connect to Kafka]
+# MAGIC Before setting up the rest of the accelerator, we need set up a few credentials in order to connect to Kafka. 
 # MAGIC 
-# MAGIC Copy the block of code below, replace the name the secret scope and fill in the credentials and execute the block. After executing the code, The accelerator notebook will be able to access the credentials it needs.
+# MAGIC Once you set up a Kafka server and collected the following credentials, copy the block of code below, replace the name the secret scope and fill in the credentials and execute the block. After executing the code, The accelerator notebook will be able to access the credentials it needs.
 # MAGIC 
 # MAGIC 
 # MAGIC ```
@@ -83,21 +83,9 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"01_introduction_and_setup"
+                    "notebook_path": f"01_introduction_and_bronze"
                 },
-                "task_key": "iot_ad_01"
-            },
-            {
-                "job_cluster_key": "iot_ad_cluster",
-                "notebook_task": {
-                    "notebook_path": f"02_bronze"
-                },
-                "task_key": "iot_ad_02",
-                "depends_on": [
-                    {
-                        "task_key": "iot_ad_01"
-                    }
-                ],
+                "task_key": "iot_ad_01",
                 "libraries": [
                     {
                         "maven": {
@@ -114,7 +102,19 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"03_silver"
+                    "notebook_path": f"02_silver"
+                },
+                "task_key": "iot_ad_02",
+                "depends_on": [
+                    {
+                        "task_key": "iot_ad_01"
+                    }
+                ]
+            },
+            {
+                "job_cluster_key": "iot_ad_cluster",
+                "notebook_task": {
+                    "notebook_path": f"03_train"
                 },
                 "task_key": "iot_ad_03",
                 "depends_on": [
@@ -126,24 +126,12 @@ job_json = {
             {
                 "job_cluster_key": "iot_ad_cluster",
                 "notebook_task": {
-                    "notebook_path": f"04_train"
+                    "notebook_path": f"04_inference"
                 },
                 "task_key": "iot_ad_04",
                 "depends_on": [
                     {
                         "task_key": "iot_ad_03"
-                    }
-                ]
-            },
-            {
-                "job_cluster_key": "iot_ad_cluster",
-                "notebook_task": {
-                    "notebook_path": f"05_inference"
-                },
-                "task_key": "iot_ad_05",
-                "depends_on": [
-                    {
-                        "task_key": "iot_ad_04"
                     }
                 ]
             }
