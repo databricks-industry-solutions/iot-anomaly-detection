@@ -3,15 +3,32 @@
 [![CLOUD](https://img.shields.io/badge/CLOUD-ALL-blue?logo=googlecloud&style=for-the-badge)](https://cloud.google.com/databricks)
 [![POC](https://img.shields.io/badge/POC-10_days-green?style=for-the-badge)](https://databricks.com/try-databricks)
 
-*Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.*
+## Real-time monitoring and anomaly detection on streaming IoT pipelines in Manufacturing
+
+The Internet of Things (IoT) is a foundational technology that enables the delivery of Industry 4.0 objectives within manufacturing and connected products. IoT data provides critical insights into manufacturing processes and product performance, enabling companies to optimize operations, improve quality, and deliver innovative products and services to customers.
+
+In this solution accelerator, we show how to build a streaming pipeline for IoT data, train a machine learning model on that data, and use that model to make predictions on new IoT data. The pattern is applicable across many use cases like
+* predictive maintenance
+* digital twins
+* remote monitoring
+* asset optimization
+* energy consumption optimization
+* workforce optimization and safety
+* and quality control
+
+Databricks Lakehouse overcomes the limitations of legacy platforms for dealing with IoT data. In this solution accelerator you will:
+* Ingest data from IoT message buses like Confluent Kafka, Azure Eventhub, AWS MSK or Google PubSub
+* Load and transform IoT streaming data into Delta
+* Surface insights like anomalies on streamed signals in near real-time
+
 
 ___
-<john.doe@databricks.com>
+<rafael.pierre@databricks.com>, <mike.cornell@databricks.com>, <jingting.lu@databricks.com>, <bala@databricks.com>
 
 ___
 
 
-IMAGE TO REFERENCE ARCHITECTURE
+<img alt="add_repo" src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/blob/main/images/iot_streaming_lakehouse.png?raw=true" width=75%/>
 
 ___
 
