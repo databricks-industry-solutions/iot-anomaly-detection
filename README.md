@@ -34,10 +34,6 @@ ___
 
 &copy; 2022 Databricks, Inc. All rights reserved. The source in this notebook is provided subject to the Databricks License [https://databricks.com/db-license-source].  All included or referenced third party libraries are subject to the licenses set forth below.
 
-| library                                | description             | license    | source                                              |
-|----------------------------------------|-------------------------|------------|-----------------------------------------------------|
-| transformers                                 | HuggingFace model platform      | Apache 2.0        | https://github.com/huggingface/transformers/blob/main/LICENSE                      |
-
 ## Getting started
 
 Although specific solutions can be downloaded as .dbc archives from our websites, we recommend cloning these repositories onto your databricks environment. Not only will you get access to latest code, but you will be part of a community of experts driving industry best practices and re-usable solutions, influencing our respective industries. 
