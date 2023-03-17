@@ -36,7 +36,7 @@ ___
 
 | library                                | description             | license    | source                                              |
 |----------------------------------------|-------------------------|------------|-----------------------------------------------------|
-| PyYAML                                 | Reading Yaml files      | MIT        | https://github.com/yaml/pyyaml                      |
+| transformers                                 | HuggingFace model platform      | Apache 2.0        | https://github.com/huggingface/transformers/blob/main/LICENSE                      |
 
 ## Getting started
 
