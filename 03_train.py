@@ -7,7 +7,9 @@
 # MAGIC 
 # MAGIC ## Build Test/Train Datasets and Train Model
 # MAGIC 
-# MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/raw/main/resource/images/05_train_model.jpg" width="25%">
+# MAGIC <br/>
+# MAGIC 
+# MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/blob/main/images/05_train_model.jpg?raw=true" width="50%">
 # MAGIC 
 # MAGIC This notebook will label the Silver data, create training and test datasets from the labeled data, train a machine learning model, and deploy the model the MLflow model registry.
 
@@ -194,7 +196,3 @@ client.transition_model_version_stage(
   stage="Production",
   archive_existing_versions=True
 )
-
-# COMMAND ----------
-
-

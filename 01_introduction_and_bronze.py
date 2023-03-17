@@ -11,17 +11,15 @@
 # MAGIC 
 # MAGIC You may find this series of notebooks at https://github.com/databricks-industry-solutions/iot-anomaly-detection. 
 # MAGIC 
-# MAGIC In this notebook, we will first generate some IoT data and write it to a Kafka topic
+# MAGIC <p></p>
 # MAGIC 
 # MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/blob/main/images/iot_streaming_lakehouse.png?raw=true" width=75%/>
-
-# COMMAND ----------
-
-# MAGIC %md
+# MAGIC 
+# MAGIC <p></p>
 # MAGIC 
 # MAGIC ## Stream the Data from Kafka into a Bronze Delta Table
 # MAGIC 
-# MAGIC <hr/>
+# MAGIC <p></p>
 # MAGIC <center><img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/blob/main/images/03_bronze.jpg?raw=true" width="30%"></center>
 # MAGIC 
 # MAGIC 
@@ -72,12 +70,11 @@ kafka_df = (
 
 # COMMAND ----------
 
-# MAGIC %md Here we generate some data and pump the data into the kafka topic. For your use case, if there is a Kafka topic with data continuously arriving, you can skip the following data generation step.
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC Write the Kafka data to Bronze Delta table
+# MAGIC %md 
+# MAGIC 
+# MAGIC ### Write the Kafka data to Bronze Delta table
+# MAGIC 
+# MAGIC Here we generate some data and pump the data into the kafka topic. For your use case, if there is a Kafka topic with data continuously arriving, you can skip the following data generation step.
 
 # COMMAND ----------
 

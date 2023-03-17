@@ -7,7 +7,9 @@
 # MAGIC 
 # MAGIC ## Predict Anomalous Events
 # MAGIC 
-# MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/raw/main/resource/images/06_inference.jpg" width="20%">
+# MAGIC <br/>
+# MAGIC 
+# MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/blob/main/images/06_inference.jpg?raw=true" width="25%">
 # MAGIC 
 # MAGIC This notebook will use the trained model to identify anomalous events.
 
@@ -28,7 +30,8 @@ checkpoint_location_target = f"{checkpoint_path}/{target_table}"
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Read Silver Data
+# MAGIC 
+# MAGIC ### Read Silver Data
 
 # COMMAND ----------
 
@@ -41,7 +44,9 @@ silver_df = (
 
 # COMMAND ----------
 
-# MAGIC %md Create a function to featurize and make the prediction
+# MAGIC %md
+# MAGIC 
+# MAGIC ### Create a function to featurize and make the prediction
 
 # COMMAND ----------
 
@@ -67,7 +72,9 @@ def predict_anomalies(data, epoch_id):
 
 # COMMAND ----------
 
-# MAGIC %md Stream the predicted results using the function
+# MAGIC %md 
+# MAGIC 
+# MAGIC ### Stream the predicted results using the function
 
 # COMMAND ----------
 
@@ -83,8 +90,5 @@ def predict_anomalies(data, epoch_id):
 
 # COMMAND ----------
 
+# DBTITLE 1,Display our results
 display(spark.table(f"{database}.{target_table}"))
-
-# COMMAND ----------
-
-

@@ -1,5 +1,7 @@
 # Databricks notebook source
 # DBTITLE 1,Kafka config - see the RUNME notebook for instructions on setting up secrets
+# Either configure a secret scope containing the credentials for authenticating with Kafka, or replace with your own credentials
+
 kafka_bootstrap_servers = dbutils.secrets.get("solution-accelerator-cicd", "iot-anomaly-kafka-bootstrap-server")
 security_protocol = "SASL_SSL"
 sasl_mechanism = "PLAIN"

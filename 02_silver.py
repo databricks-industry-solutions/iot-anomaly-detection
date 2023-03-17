@@ -7,7 +7,11 @@
 # MAGIC 
 # MAGIC ## Parse/Transform the data from Bronze and load to Silver
 # MAGIC 
-# MAGIC <img src="https://github.com/databricks-industry-solutions/iot-anomaly-detection/raw/main/resource/images/04_silver.jpg" width="25%">
+# MAGIC <br/>
+# MAGIC 
+# MAGIC <img src="https://raw.githubusercontent.com/databricks-industry-solutions/iot-anomaly-detection/main/images/04_silver.jpg" width="50%">
+# MAGIC 
+# MAGIC 
 # MAGIC 
 # MAGIC This notebook will stream new events from the Bronze table, parse/transform them, and load them to a Delta table called "Silver".
 
@@ -28,7 +32,8 @@ checkpoint_location_target = f"{checkpoint_path}/{target_table}"
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Incrementally Read data from Bronze
+# MAGIC 
+# MAGIC ### Incrementally Read data from Bronze
 
 # COMMAND ----------
 
@@ -47,7 +52,7 @@ bronze_df = (
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Parse/Transform the Bronze data
+# MAGIC ### Parse/Transform the Bronze data
 
 # COMMAND ----------
 
@@ -76,7 +81,7 @@ transformed_df = (
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Write transformed data to Silver
+# MAGIC ### Write transformed data to Silver
 
 # COMMAND ----------
 
